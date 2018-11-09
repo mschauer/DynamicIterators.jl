@@ -1,5 +1,6 @@
 """
     control(C, P)
+    timed(C, P)
 
 "Control" iterator `P` with the state `t` of `C`
 calling
@@ -20,6 +21,7 @@ struct Control{T,S} <: DynamicIterator
         P::T
 end
 control(C, P) = Control(C, P)
+timed(C, P) = Control(C, P)
 
 function evolve(M::Control, (t,x))
     tᵒ = evolve(M.C, t)

@@ -3,6 +3,7 @@ using Trajectories
 
 export evolve, collectfrom, DynamicIterator
 
+export from # evolution
 export Evolve, mix # combinators
 
 export trace, endtime # trajectories
@@ -15,9 +16,23 @@ using Random, Base.Iterators
 
 using Base.Iterators
 using Base: SizeUnknown, HasEltype
-import Base: iterate, IteratorSize, @propagate_inbounds, IsInfinite, eltype, IteratorEltype
+import Base: iterate, IteratorSize, @propagate_inbounds, IsInfinite, eltype, IteratorEltype,
+    rand
 
+"""
+    DynamicIterator
 
+DynamicIterator define
+```
+    evolve(iter, value::T)::T
+```
+and possibly
+```
+    evolve(iter, key=>value)
+```
+
+They guarantee `HasEltype()` and `eltype(iter) == T`.
+"""
 abstract type DynamicIterator
 end
 
@@ -26,6 +41,10 @@ end
 
 dedub(x) = x === nothing ? nothing : x[1]
 evolve(r::UnitRange, i) = i < last(r) ?  i + 1 : nothing
+function evolve(r::StepRange, i) # Fixme
+    i = i + step(r)
+    i <= last(r) ?  i : nothing
+end
 
 dub(x) = x === nothing ? nothing : (x, x)
 Base.iterate(P::DynamicIterator, x) = dub(evolve(P, x))
@@ -36,7 +55,7 @@ include("evolution.jl")
 include("combinators.jl")
 include("trajectories.jl")
 include("random.jl")
-
+include("control.jl")
 # Examples
 
 end
