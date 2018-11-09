@@ -49,3 +49,7 @@ As = collectfrom(P, A0, 13)
 m = collectfrom(mix((x,y) -> (x+y, y), 0:20000, 0:100), (0,0))
 @test m[end]  == (100*101÷2 + 100, 100)
 @test_broken eltype(m) == Tuple{Int,Int}
+
+@test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
+
+@show collectfrom(Sample(WhiteNoise()), (0 => 0.1), 10)

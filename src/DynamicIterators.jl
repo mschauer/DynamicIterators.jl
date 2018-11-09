@@ -7,6 +7,10 @@ export Evolve, mix # combinators
 
 export trace, endtime # trajectories
 
+export control, timed # control
+
+export WhiteNoise, Randn, Sample
+
 using Random, Base.Iterators
 
 using Base.Iterators
@@ -31,6 +35,7 @@ Base.IteratorSize(::DynamicIterator) = SizeUnknown()
 include("evolution.jl")
 include("combinators.jl")
 include("trajectories.jl")
+include("random.jl")
 
 # Examples
 
