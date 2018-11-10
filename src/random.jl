@@ -54,18 +54,20 @@ function evolve(P::InhomogeneousPoisson, (t, i)::Pair)
 end
 
 
-struct MetropolisHastings{T,S,RNG} <: Evolution
+struct MetropolisHastings{T,F,G,RNG} <: Evolution
     P::T
     proposal::F
+    logpdf::G
     rng::RNG
 end
+MetropolisHastings(P, proposal, logpdf=logpdf) = MetropolisHastings(P, proposal, logpdf, Random.GLOBAL_RNG)
 
 function evolve(MH::MetropolisHastings, x)
     P = MH.P
     Q = MH.proposal(x)
     xᵒ = rand(Q)
     Qᵒ = MH.proposal(xᵒ)
-    if log(rand(rng)) < logpdf(P, xᵒ) - logpdf(P, x) + logpdf(Qᵒ, x) - logpdf(Q, xᵒ)
+    if log(rand(MH.rng)) < MH.logpdf(P, xᵒ) - MH.logpdf(P, x) + MH.logpdf(Qᵒ, x) - MH.logpdf(Q, xᵒ)
         x = xᵒ
     end
     x

@@ -25,8 +25,9 @@ end
 #dyniterate(M::Mix, v::Value) = dyniterate_(M, v)
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dub(evolve(M, u))
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (u,)::Value) = dub(evolve(M, u))
+evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (i, pq)::Pair) = i+1 => evolve(M, pq)
 
-function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q))
+function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
     p = evolve(M.P, p)
     p === nothing && return nothing
     q = evolve(M.Q, q)
