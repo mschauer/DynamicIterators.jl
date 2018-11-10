@@ -59,7 +59,7 @@ dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, 
 IteratorSize(::DynamicIterator) = SizeUnknown()
 const Value = NamedTuple{(:value,)}
 const Nextkey = NamedTuple{(:nextkey,)}
-
+const Control = NamedTuple{(:control,)}
 const Steps = NamedTuple{(:steps,)}
 
 """
