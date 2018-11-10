@@ -106,7 +106,7 @@ end
 
 @inferred _lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
 @inferred lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
-using BenchmarkTools
+#using BenchmarkTools
 
 let E = Evolve(collatz), st = endtime(10000)
 
@@ -114,7 +114,7 @@ let E = Evolve(collatz), st = endtime(10000)
       @test @allocated(_lastiterate(E, 1=>6171, st ) ) == 0
       @test @allocated(lastiterate(E, 1=>6171, st ) ) == 0
 
-      @btime lastiterate($E, 1=>6171, $st)
-      @btime _lastiterate($E, 1=>6171, $st)
-      @btime bare_collatz(6171, 10000)
+      @time lastiterate($E, 1=>6171, $st)
+      @time _lastiterate($E, 1=>6171, $st)
+      @time bare_collatz(6171, 10000)
 end
