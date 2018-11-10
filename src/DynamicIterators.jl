@@ -8,7 +8,7 @@ export Evolve, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 
-export control, timed # control
+export control, timed, Control # control
 
 # random
 export WhiteNoise, Randn, Sample, InhomogeneousPoisson,

@@ -114,7 +114,7 @@ let E = Evolve(collatz), st = endtime(10000)
       @test @allocated(_lastiterate(E, 1=>6171, st ) ) == 0
       @test @allocated(lastiterate(E, 1=>6171, st ) ) == 0
 
-      @time lastiterate($E, 1=>6171, $st)
-      @time _lastiterate($E, 1=>6171, $st)
+      @time lastiterate(E, 1=>6171, st)
+      @time _lastiterate(E, 1=>6171, st)
       @time bare_collatz(6171, 10000)
 end
