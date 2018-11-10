@@ -1,4 +1,6 @@
 # DynamicIterators.jl
+
+## `DynamicIterator`
 You can build a tree from Iterators, but you can form a graph from dynamic iterators.
 
 Dynamic iterators subtype `<:DynamicIterator`. They extend the iteration protocol and define
@@ -17,7 +19,7 @@ Keyword      | Meaning
 `steps=n`    | advance the iterator `n` steps or possibly rewind if `n` negative
 
 
-## Evolution-type iterators
+## `Evolution`: Evolution-type dynamic iterators
 Typically, the state of an iterator is opaque. But for some iterators
 the iterates *are* the states:
 
@@ -49,7 +51,6 @@ for such iterators.
 ## Traces
 
 ## Control
-
 
 
 ## Examples
