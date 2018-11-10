@@ -22,8 +22,8 @@ from(i, x) = From(i, x)
 collectfrom(it, x) = collect(from(it, x))
 collectfrom(it, x, n) = collect(take(from(it, x), n))
 
-@propagate_inbounds iterate(i::From) = _iterate(i.itr, (value=i.x,))
-@propagate_inbounds iterate(i::From, u) = _iterate(i.itr, u)
+@propagate_inbounds iterate(i::From) = dyniterate(i.itr, (value=i.x,))
+@propagate_inbounds iterate(i::From, u) = dyniterate(i.itr, u)
 
 
 eltype(::Type{From{I,T}}) where {I<:DynamicIterator,T} = T
@@ -61,11 +61,11 @@ lastiterate(P, u, stop=u->false) = _lastiterate(P, u, stop)
 
 function _lastiterate(P, u, stop=u->false)
     if !stop(u)
-        ϕ = _iterate(P, (value=u,))
+        ϕ = dyniterate(P, (value=u,))
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)
-            ϕ = _iterate(P, state, (value=u,))
+            ϕ = dyniterate(P, state, (value=u,))
             ϕ === nothing && return u
             u, state = ϕ
         end

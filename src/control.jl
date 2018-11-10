@@ -32,12 +32,12 @@ function evolve(M::Control, (t,x))
 end
 
 
-function _iterate(M::Control, (value,)::Value)
-    ϕ = _iterate(M.C, (value=value[1],))
+function dyniterate(M::Control, (value,)::Value)
+    ϕ = dyniterate(M.C, (value=value[1],))
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
 
-    ϕ = _iterate(M.P, (value=value, nextkey = tᵒ,))
+    ϕ = dyniterate(M.P, (value=value, nextkey = tᵒ,))
     ϕ === nothing && return nothing
     u, p = ϕ
 
@@ -45,11 +45,11 @@ function _iterate(M::Control, (value,)::Value)
 end
 
 function iterate(M::Control)
-    ϕ = _iterate(M.C)
+    ϕ = dyniterate(M.C)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
 
-    ϕ = _iterate(M.P, (nextkey = tᵒ,))
+    ϕ = dyniterate(M.P, (nextkey = tᵒ,))
     ϕ === nothing && return nothing
     u, p = ϕ
 
@@ -57,11 +57,11 @@ function iterate(M::Control)
 end
 
 function iterate(M::Control, (c, p)::Tuple)
-    ϕ = _iterate(M.C, c)
+    ϕ = dyniterate(M.C, c)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
 
-    ψ = _iterate(M.P, p, (nextkey = tᵒ,))
+    ψ = dyniterate(M.P, p, (nextkey = tᵒ,))
     ψ === nothing && return nothing
     u, p = ψ
 

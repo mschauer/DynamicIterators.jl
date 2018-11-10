@@ -43,15 +43,15 @@ dedub(x) = x === nothing ? nothing : x[1]
 
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
-_iterate(iter, state) = iterate(iter, state)
-_iterate(iter) = iterate(iter)
+dyniterate(iter, state) = iterate(iter, state)
+dyniterate(iter) = iterate(iter)
 
 
 # todo: remove
 #=
 iterate(P::DynamicIterator, x) = dub(evolve(P, x))
-_iterate(P::DynamicIterator, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(P, value))
-_iterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, value))
+dyniterate(P::DynamicIterator, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(P, value))
+dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, value))
 =#
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
@@ -61,13 +61,13 @@ const Nextkey = NamedTuple{(:nextkey,)}
 const Steps = NamedTuple{(:steps,)}
 
 """
-    _iterate(iter, state, (steps,)::Steps)
+    dyniterate(iter, state, (steps,)::Steps)
 
 Advance the iterator `steps` times, and for negative
 numbers, if implemented, rewind the iterator `-steps`
 times.
 """
-function _iterate(iter, state, (steps,)::Steps)
+function dyniterate(iter, state, (steps,)::Steps)
     @assert steps >= 0
     local x
     for i in 0

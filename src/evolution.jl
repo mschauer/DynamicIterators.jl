@@ -23,7 +23,7 @@ const GEvolution = Union{Evolution, UnitRange, StepRange}
 
 Create state for E following `x`.
 """
-statefrom(E, x) = _iterate(i.itr, (value=i.x,))
+statefrom(E, x) = dyniterate(i.itr, (value=i.x,))
 evolve(r::UnitRange, i) = i < last(r) ?  i + 1 : nothing
 function evolve(r::StepRange, i) # Fixme
     i = i + step(r)
@@ -31,21 +31,21 @@ function evolve(r::StepRange, i) # Fixme
 end
 
 
-@inline _iterate(r::Union{UnitRange, StepRange}) = iterate(r)
-@inline _iterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
-@inline _iterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
+@inline dyniterate(r::Union{UnitRange, StepRange}) = iterate(r)
+@inline dyniterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
+@inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
 
-_iterate(E::Evolution, state, (value,)::Value=(value=state,)) = dub(evolve(E, value))
-_iterate(E::Evolution, (value,)::Value) = dub(evolve(E, value))
+dyniterate(E::Evolution, state, (value,)::Value=(value=state,)) = dub(evolve(E, value))
+dyniterate(E::Evolution, (value,)::Value) = dub(evolve(E, value))
 
-_iterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
-_iterate(E::Evolution, value::Pair, (nextkey,)::Nextkey) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolution, value::Pair, (nextkey,)::Nextkey) = dub(evolve(E, value, nextkey))
 
 iterate(E::Evolution, x=first(E)) = dub(evolve(E, x))
 IteratorSize(::Evolution) = SizeUnknown()
 
-_iterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))
-_iterate(E::Evolution, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
+dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))
+dyniterate(E::Evolution, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 
 """
     evolve(f)
