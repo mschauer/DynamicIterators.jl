@@ -19,7 +19,14 @@ struct Mix{F,T,S} <: DynamicIterator
     P::T
     Q::S
 end
-function evolve(M::Mix, (p, q))
+
+#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dyniterate_(M, (value=u,))
+#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, v::Value) = dyniterate_(M, v)
+#dyniterate(M::Mix, v::Value) = dyniterate_(M, v)
+dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dub(evolve(M, u))
+dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (u,)::Value) = dub(evolve(M, u))
+
+function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q))
     p = evolve(M.P, p)
     p === nothing && return nothing
     q = evolve(M.Q, q)
@@ -27,48 +34,37 @@ function evolve(M::Mix, (p, q))
     M.f(p, q)
 end
 
+function dyniterate(M::Mix, (value,)::Value)
+    x, y = value
+    ϕ = dyniterate(M.P, (value=x,))
+    ϕ === nothing && return nothing
+    x, p = ϕ
+    ψ = dyniterate(M.Q, (value=y,))
+    ψ === nothing && return nothing
+    y, q = ψ
+    x, y = M.f(x, y)
+    (x, y), (p, q)
+end
+function dyniterate(M::Mix, u, (value,)::Value=(value=u))
+    p, q = u
+    x, y = value
+    ϕ = dyniterate(M.P, p, (value=x,))
+    ϕ === nothing && return nothing
+    x, p = ϕ
+    ψ = dyniterate(M.Q, q, (value=y,))
+    ψ === nothing && return nothing
+    y, q = ψ
+    x, y = M.f(x, y)
+    (x, y), (p, q)
+end
+
+
 mix(f, P, Q) = Mix(f, P, Q)
 
 
 
-"""
-    evolve(f)
 
-Create the DynamicIterator corresponding to the evolution
-```
-    x = f(x)
-```
-
-Integer keys default to increments.
-Integer control defaults to repetition.
-
-```
-julia> collect(take(from(Evolve(x->x + 1), 10), 5))
-5-element Array{Any,1}:
- 10
- 11
- 12
- 13
- 14
-```
-"""
-struct Evolve{T} <: DynamicIterator
-    f::T
-end
-
-evolve(F::Evolve, x) = F.f(x)
-evolve(F::Evolve, (i,x)::Pair) = i+1 => F.f(x)
-
-function evolve(F::Evolve, (i,x)::Pair{T}, j::T) where {T}
-    @assert j ≥ i
-    for k in 1:j-i
-        x = evolve(F, x)
-        x === nothing && return nothing
-    end
-    j => x
-end
-
-struct Synchronize{T} <: DynamicIterator
+struct Synchronize{T} <: Evolution
     Ps::T
 end
 

@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub
+using DynamicIterators: dub, _lastiterate
 using Test
 using Trajectories
 
@@ -45,29 +45,76 @@ As = collectfrom(P, A0, 13)
 # broken?
 @test evolve(1:10, 11) == nothing
 
+@testset "Mix" begin
+      M = mix((x,y) -> (x+y, y), 0:20000, 0:100)
+      F = from(M, (0,0))
+      @show x, s = iterate(F)
+      @show x, s = iterate(F, s)
+      @show x, s = iterate(F, s)
+      @test _lastiterate(M, (0,0)) == (100*101÷2 + 100, 100)
+
+      m = collectfrom(M, (0,0))
+      @test m[end]  == (100*101÷2 + 100, 100)
+      @test eltype(m) == Tuple{Int,Int}
 
 
-m = collectfrom(mix((x,y) -> (x+y, y), 0:20000, 0:100), (0,0))
-@test m[end]  == (100*101÷2 + 100, 100)
-@test eltype(m) == Tuple{Int,Int}
+end
 
-@test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
+@testset "random" begin
+      @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
-@test collectfrom(Sample(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
+      @test collectfrom(Sample(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
 
-@test eltype(from(Sample(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
+      @test eltype(from(Sample(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
+
+
+      @test eltype(Randn(10)) == Int
+      @test eltype(Randn{Int}) == Int
+
+      @test collectfrom(InhomogeneousPoisson(x -> sin(x) + 1, 2.0), (0.0=>0), 10) isa  Array{Pair{Float64,Int64},1}
+end
 
 collatz(n) = n % 2 == 0 ? n÷2 : 3n + 1
-@test collectfrom(control(1:2:20, Evolve(collatz)), (1=>14)) isa Array{Pair{Int64,Int64},1}
 
-@test eltype(Randn(10)) == Int
-@test eltype(Randn{Int}) == Int
+function bare_collatz(k, n)
+      for i in 1:n-1
+            k = collatz(k)
+      end
+      k
+end
 
-@test collectfrom(InhomogeneousPoisson(x -> sin(x) + 1, 2.0), (0.0=>0), 10) isa  Array{Pair{Float64,Int64},1}
 
-P = InhomogeneousPoisson(x -> sin(x) + 1, 2.0)
+@testset "control" begin
 
-PP = synchronize(P, P)
-u = DynamicIterators.state(0.0 => (0,0), PP)
-@show u
-@show collectfrom(PP, u, 10)
+      @test (3 => 22, (3, 3 => 22)) == iterate(from(control(1:2:20, Evolve(collatz)), 1=>14))
+      @test collectfrom(control(1:2:20, Evolve(collatz)), (1=>14)) isa Array{Pair{Int64,Int64},1}
+
+
+end
+
+
+
+@testset "Synchronize" begin
+      P = InhomogeneousPoisson(x -> sin(x) + 1, 2.0)
+
+      PP = synchronize(P, P)
+      u = DynamicIterators.state(0.0 => (0,0), PP)
+      @show u
+      @show collectfrom(PP, u, 10)
+
+end
+
+@inferred _lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
+@inferred lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
+using BenchmarkTools
+
+let E = Evolve(collatz), st = endtime(10000)
+
+      @test _lastiterate(E, 1=>6171, st )[2] == lastiterate(E, 1=>6171, st )[2] == bare_collatz(6171, 10000)
+      @test @allocated(_lastiterate(E, 1=>6171, st ) ) == 0
+      @test @allocated(lastiterate(E, 1=>6171, st ) ) == 0
+
+      @btime lastiterate($E, 1=>6171, $st)
+      @btime _lastiterate($E, 1=>6171, $st)
+      @btime bare_collatz(6171, 10000)
+end

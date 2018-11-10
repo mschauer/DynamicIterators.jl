@@ -1,5 +1,5 @@
 
-struct Sample{T,S} <: DynamicIterator
+struct Sample{T,S} <: Evolution
     P::T
     rng::S
     Sample(P::T, rng=Random.GLOBAL_RNG) where {T} = new{T,typeof(rng)}(P, rng)
@@ -27,7 +27,7 @@ rand(rng::AbstractRNG, D::Randn{Array{T}}) where {T} = randn(rng, T, size(D.x))
 
 
 
-struct WhiteNoise <: DynamicIterator
+struct WhiteNoise <: Evolution
 end
 evolve(::WhiteNoise, (t,x)::Pair{Int}, args...) = (t+1) => Randn(x)
 evolve(::WhiteNoise, x, args...) = Randn(x)
@@ -37,7 +37,7 @@ eltype(::Type{From{WhiteNoise,T}}) where {T} = T
 #abstract type MarkovIterator
 #end
 
-struct InhomogeneousPoisson{T,S,R} <: DynamicIterator
+struct InhomogeneousPoisson{T,S,R} <: Evolution
     λ::S
     λmax::T
     rng::R
