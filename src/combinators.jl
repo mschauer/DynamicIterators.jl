@@ -64,7 +64,7 @@ mix(f, P, Q) = Mix(f, P, Q)
 
 
 
-struct Synchronize{T} <: DynamicIterator
+struct Synchronize{T} <: Evolution
     Ps::T
 end
 
