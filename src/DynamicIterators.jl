@@ -6,7 +6,7 @@ export evolve, collectfrom, DynamicIterator
 export from # evolution
 export Evolve, mix, synchronize # combinators
 
-export trace, endtime # trajectories
+export trace, endtime, lastiterate # trajectories
 
 export control, timed # control
 
@@ -19,10 +19,27 @@ using Base: SizeUnknown, HasEltype
 import Base: iterate, IteratorSize, @propagate_inbounds, IsInfinite, eltype, IteratorEltype,
     rand
 
+
+# keyword arguments:
+# jump, key, t
+
 """
     DynamicIterator
 
-DynamicIterator define
+`DynamicIterator`s which extend the iterator protocol by
+keywords for the `iterate` function.
+
+"""
+abstract type DynamicIterator
+end
+
+
+
+
+"""
+    Evolution
+
+Evolutions define
 ```
     evolve(iter, value::T)::T
 ```
@@ -33,8 +50,9 @@ and possibly
 
 They guarantee `HasEltype()` and `eltype(iter) == T`.
 """
-abstract type DynamicIterator
+abstract type Evolution <: DynamicIterator
 end
+
 
 function evolve
 end
@@ -48,6 +66,9 @@ end
 
 dub(x) = x === nothing ? nothing : (x, x)
 Base.iterate(P::DynamicIterator, x) = dub(evolve(P, x))
+Base.iterate(P::DynamicIterator, state; value=state) = dub(evolve(P, value))
+Base.iterate(P::DynamicIterator; value=nothing) = value == nothing ?  dub(evolve(P)) : dub(evolve(P, value))
+
 Base.IteratorSize(::DynamicIterator) = SizeUnknown()
 
 

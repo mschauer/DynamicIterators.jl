@@ -71,3 +71,27 @@ PP = synchronize(P, P)
 u = DynamicIterators.state(0.0 => (0,0), PP)
 @show u
 @show collectfrom(PP, u, 10)
+
+function bare_collatz(k, n)
+      for i in 1:n-1
+            k = collatz(k)
+      end
+      k
+end
+
+
+
+@inferred DynamicIterators._lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
+@inferred lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
+using BenchmarkTools
+
+let E = Evolve(collatz), st = endtime(10000)
+
+      @test DynamicIterators._lastiterate(E, 1=>6171, st )[2] == lastiterate(E, 1=>6171, st )[2] == bare_collatz(6171, 10000)
+      @test @allocated(DynamicIterators._lastiterate(E, 1=>6171, st ) ) == 0
+      @test @allocated(lastiterate(E, 1=>6171, st ) ) == 0
+
+      @btime lastiterate($E, 1=>6171, $st)
+      @btime DynamicIterators._lastiterate($E, 1=>6171, $st)
+      @btime bare_collatz(6171, 10000)
+end

@@ -15,3 +15,26 @@ function trace(P, u::Pair, stop; register = x->true)
     end
     X
 end
+
+function lastiterate(P::DynamicIterator, u, stop=u->false)
+    while !stop(u)
+        u = evolve(P, u)
+        u === nothing && return u
+    end
+    u
+end
+lastiterate(P, u, stop=u->false) = _lastiterate(P, u, stop)
+
+function _lastiterate(P, u, stop=u->false)
+    if !stop(u)
+        ϕ = iterate(P, value=u)
+        ϕ === nothing && return u
+        u, state = ϕ
+        while !stop(u)
+            ϕ = iterate(P, state, value=u)
+            ϕ === nothing && return u
+            u, state = ϕ
+        end
+    end
+    u
+end
