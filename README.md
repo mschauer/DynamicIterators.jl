@@ -93,6 +93,17 @@ X = values(trace(MH, 1=>(1, [0.0, 0.0]), endtime(2000)))
 
 ![img](https://raw.githubusercontent.com/mschauer/DynamicIterators.jl/master/asset/mh.png)
 
+## Lifting time
+
+Letting
+```
+evolve(E, (i, x)::Pair) = i + 1 => evolve(E, x)
+```
+constitutes a "lifting" of discrete time. This corresponds to enumerating the iterates of an evolution `x = f(x)` as `(1 => x1, 2 => x2, ...)`.
+
+`DynamicIterators` control keywords treat `Pair`s as pair of key and value in concordance with the package `Trajectories` and somewhat in line with Julia's general convention.
+
+
 
 ## Traces
 
