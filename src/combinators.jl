@@ -27,46 +27,35 @@ function evolve(M::Mix, (p, q))
     M.f(p, q)
 end
 
+function _iterate(M::Mix; value=u)
+    x, y = value
+    ϕ = _iterate(M.P, value=x)
+    ϕ === nothing && return nothing
+    x, p = ϕ
+    ψ = _iterate(M.Q, value=y)
+    ψ === nothing && return nothing
+    y, q = ψ
+    x, y = M.f(x, y)
+    (x, y), (p, q)
+end
+function _iterate(M::Mix, u; value=u)
+    p, q = u
+    x, y = value
+    ϕ = _iterate(M.P, p, value=x)
+    ϕ === nothing && return nothing
+    x, p = ϕ
+    ψ = _iterate(M.Q, q, value=y)
+    ψ === nothing && return nothing
+    y, q = ψ
+    x, y = M.f(x, y)
+    (x, y), (p, q)
+end
+
+
 mix(f, P, Q) = Mix(f, P, Q)
 
 
 
-"""
-    evolve(f)
-
-Create the DynamicIterator corresponding to the evolution
-```
-    x = f(x)
-```
-
-Integer keys default to increments.
-Integer control defaults to repetition.
-
-```
-julia> collect(take(from(Evolve(x->x + 1), 10), 5))
-5-element Array{Any,1}:
- 10
- 11
- 12
- 13
- 14
-```
-"""
-struct Evolve{T} <: DynamicIterator
-    f::T
-end
-
-evolve(F::Evolve, x) = F.f(x)
-evolve(F::Evolve, (i,x)::Pair) = i+1 => F.f(x)
-
-function evolve(F::Evolve, (i,x)::Pair{T}, j::T) where {T}
-    @assert j ≥ i
-    for k in 1:j-i
-        x = evolve(F, x)
-        x === nothing && return nothing
-    end
-    j => x
-end
 
 struct Synchronize{T} <: DynamicIterator
     Ps::T

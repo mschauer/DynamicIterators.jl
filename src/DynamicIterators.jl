@@ -35,41 +35,24 @@ end
 
 
 
-
-"""
-    Evolution
-
-Evolutions define
-```
-    evolve(iter, value::T)::T
-```
-and possibly
-```
-    evolve(iter, key=>value)
-```
-
-They guarantee `HasEltype()` and `eltype(iter) == T`.
-"""
-abstract type Evolution <: DynamicIterator
-end
-
-
 function evolve
 end
 
-dedub(x) = x === nothing ? nothing : x[1]
-evolve(r::UnitRange, i) = i < last(r) ?  i + 1 : nothing
-function evolve(r::StepRange, i) # Fixme
-    i = i + step(r)
-    i <= last(r) ?  i : nothing
-end
-
 dub(x) = x === nothing ? nothing : (x, x)
-Base.iterate(P::DynamicIterator, x) = dub(evolve(P, x))
-Base.iterate(P::DynamicIterator, state; value=state) = dub(evolve(P, value))
-Base.iterate(P::DynamicIterator; value=nothing) = value == nothing ?  dub(evolve(P)) : dub(evolve(P, value))
+dedub(x) = x === nothing ? nothing : x[1]
 
-Base.IteratorSize(::DynamicIterator) = SizeUnknown()
+# keyword functions shouldn't shadow non-keyword functions
+# when keywords are absent
+_iterate(iter, state) = iterate(iter, state)
+_iterate(iter) = iterate(iter)
+
+
+# todo: remove
+iterate(P::DynamicIterator, x) = dub(evolve(P, x))
+_iterate(P::DynamicIterator, state; value=state) = dub(evolve(P, value))
+_iterate(P::DynamicIterator; value=nothing) = value == nothing ?  dub(evolve(P)) : dub(evolve(P, value))
+
+IteratorSize(::DynamicIterator) = SizeUnknown()
 
 
 include("evolution.jl")

@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub
+using DynamicIterators: dub, _lastiterate
 using Test
 using Trajectories
 
@@ -45,11 +45,15 @@ As = collectfrom(P, A0, 13)
 # broken?
 @test evolve(1:10, 11) == nothing
 
+@testset "Mix" begin
+      M = mix((x,y) -> (x+y, y), 0:20000, 0:100)
+      m = collectfrom(M, (0,0))
+      @test m[end]  == (100*101÷2 + 100, 100)
+      @test eltype(m) == Tuple{Int,Int}
 
+      @test _lastiterate(M, (0,0)) == (100*101÷2 + 100, 100)
 
-m = collectfrom(mix((x,y) -> (x+y, y), 0:20000, 0:100), (0,0))
-@test m[end]  == (100*101÷2 + 100, 100)
-@test eltype(m) == Tuple{Int,Int}
+end
 
 @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
@@ -81,17 +85,17 @@ end
 
 
 
-@inferred DynamicIterators._lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
+@inferred _lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
 @inferred lastiterate(Evolve(collatz), 1=>6171, endtime(10000) )
 using BenchmarkTools
 
 let E = Evolve(collatz), st = endtime(10000)
 
-      @test DynamicIterators._lastiterate(E, 1=>6171, st )[2] == lastiterate(E, 1=>6171, st )[2] == bare_collatz(6171, 10000)
-      @test @allocated(DynamicIterators._lastiterate(E, 1=>6171, st ) ) == 0
+      @test _lastiterate(E, 1=>6171, st )[2] == lastiterate(E, 1=>6171, st )[2] == bare_collatz(6171, 10000)
+      @test @allocated(_lastiterate(E, 1=>6171, st ) ) == 0
       @test @allocated(lastiterate(E, 1=>6171, st ) ) == 0
 
       @btime lastiterate($E, 1=>6171, $st)
-      @btime DynamicIterators._lastiterate($E, 1=>6171, $st)
+      @btime _lastiterate($E, 1=>6171, $st)
       @btime bare_collatz(6171, 10000)
 end
