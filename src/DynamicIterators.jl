@@ -10,7 +10,8 @@ export trace, endtime, lastiterate # trajectories
 
 export control, timed # control
 
-export WhiteNoise, Randn, Sample, InhomogeneousPoisson
+export WhiteNoise, Randn, Sample, InhomogeneousPoisson,
+    MetropolisHastings
 
 using Random, Base.Iterators
 

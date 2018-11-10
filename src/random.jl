@@ -42,7 +42,7 @@ struct InhomogeneousPoisson{T,S,R} <: Evolution
     λmax::T
     rng::R
 end
-InhomogeneousPoisson(λ,λmax) = InhomogeneousPoisson(λ, λmax, Random.GLOBAL_RNG)
+InhomogeneousPoisson(λ, λmax) = InhomogeneousPoisson(λ, λmax, Random.GLOBAL_RNG)
 
 function evolve(P::InhomogeneousPoisson, (t, i)::Pair)
     while true
@@ -51,4 +51,22 @@ function evolve(P::InhomogeneousPoisson, (t, i)::Pair)
             return t => i + 1
         end
     end
+end
+
+
+struct MetropolisHastings{T,S,RNG} <: Evolution
+    P::T
+    proposal::F
+    rng::RNG
+end
+
+function evolve(MH::MetropolisHastings, x)
+    P = MH.P
+    Q = MH.proposal(x)
+    xᵒ = rand(Q)
+    Qᵒ = MH.proposal(xᵒ)
+    if log(rand(rng)) < logpdf(P, xᵒ) - logpdf(P, x) + logpdf(Qᵒ, x) - logpdf(Q, xᵒ)
+        x = xᵒ
+    end
+    x
 end
