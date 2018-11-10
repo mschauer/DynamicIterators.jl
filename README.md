@@ -90,7 +90,7 @@ MH = mix(mixture, MH1, MH2)
 X = first.(values(trace(MH, 1=>([0.0, 0.0], [0.0, 0.0]), endtime(2000))))
 ```
 
-
+![img](https://raw.githubusercontent.com/mschauer/DynamicIterators.jl/master/asset/mh.png)
 
 
 ## Traces
