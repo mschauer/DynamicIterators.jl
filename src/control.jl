@@ -2,7 +2,7 @@
     control(C, P)
     timed(C, P)
 
-"Control" iterator `P` with the state `t` of `C`
+"Controlled" iterator `P` with the state `t` of `C`
 calling
 ```
 (t => x) = evolve(P, t=>x, tᵒ)
@@ -16,14 +16,14 @@ collatz(n) = n % 2 == 0 ? n÷2 : 3n + 1
 collectfrom(control(1:2:20, Evolve(collatz)), (1,14))
 ```
 """
-struct Control{T,S} <: DynamicIterator
+struct Controlled{T,S} <: DynamicIterator
         C::S
         P::T
 end
-control(C, P) = Control(C, P)
-timed(C, P) = Control(C, P)
+control(C, P) = Controlled(C, P)
+timed(C, P) = Controlled(C, P)
 
-function evolve(M::Control, (t,x))
+function evolve(M::Controlled, (t,x))
     tᵒ = evolve(M.C, t)
     tᵒ === nothing && return nothing
     u = evolve(M.P, t=>x, tᵒ)
@@ -32,7 +32,7 @@ function evolve(M::Control, (t,x))
 end
 
 
-function dyniterate(M::Control, (value,)::Value)
+function dyniterate(M::Controlled, (value,)::Value)
     ϕ = dyniterate(M.C, (value=value[1],))
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
@@ -44,7 +44,7 @@ function dyniterate(M::Control, (value,)::Value)
     u, (c, p)
 end
 
-function iterate(M::Control)
+function iterate(M::Controlled)
     ϕ = dyniterate(M.C)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
@@ -56,7 +56,7 @@ function iterate(M::Control)
     u, (c, p)
 end
 
-function iterate(M::Control, (c, p)::Tuple)
+function iterate(M::Controlled, (c, p)::Tuple)
     ϕ = dyniterate(M.C, c)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ

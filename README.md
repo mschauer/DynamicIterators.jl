@@ -17,6 +17,7 @@ Keyword      | Meaning
 `nextkey=x`  | advance an iterator over pairs of `key=>values` to `nextkey=>nextvalue`
 `until=x`    | advance the iterator until the itertate `x`
 `steps=n`    | advance the iterator `n` steps or possibly rewind if `n` negative
+`control=u`  | control term as in the Kalman filter
 
 
 ## `Evolution`: Evolution-type dynamic iterators
@@ -95,7 +96,7 @@ X = values(trace(MH, 1=>(1, [0.0, 0.0]), endtime(2000)))
 
 ## Traces
 
-## Control
+## Controlled Dynamic Iterators
 
 
 ## Examples
