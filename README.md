@@ -64,12 +64,11 @@ function evolve(MH::MetropolisHastings, (t,x)::Pair)
 end
 ```
 
-The following example shows that the `Mix` iterator combinator can be used to combine two Metropolis-Hastings chains into a component wise MetropolisHastings sampler:
+The following example shows that the `Mixture` iterator combinator can be used to combine two Metropolis-Hastings chains into a component wise MetropolisHastings sampler:
 
 ```
 using DynamicIterators
 using Distributions
-
 
 D = MvNormal([1.0, 0.5], [1.0 0.5; 0.5 1.5] )
 struct Move{T}
@@ -84,10 +83,11 @@ Distributions.logpdf(M::Move, x) = logpdf(Normal(M.x[M.i], M.σ), x[M.i])
 MH1 = MetropolisHastings(D, m1, logpdf)
 MH2 = MetropolisHastings(D, m2, logpdf)
 
-mixture(x, y) = rand(Bool) ? (x, x) : (y, y)
-MH = mix(mixture, MH1, MH2)
+I = Evolve(i->rand(1:2))
 
-X = first.(values(trace(MH, 1=>([0.0, 0.0], [0.0, 0.0]), endtime(2000))))
+MH = mixture(I, (MH1, MH2))
+
+X = values(trace(MH, 1=>(1, [0.0, 0.0]), endtime(2000)))
 ```
 
 ![img](https://raw.githubusercontent.com/mschauer/DynamicIterators.jl/master/asset/mh.png)

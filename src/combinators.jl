@@ -63,6 +63,31 @@ end
 mix(f, P, Q) = Mix(f, P, Q)
 
 
+"""
+
+    mixture(I, Ps)
+
+    evolve(M::Mixture, (i, x))
+Choose evolution in `Ps[i]` for `x` using iterate `i` of `I`.
+"""
+struct Mixture{S,T} <: Evolution
+    I::S
+    Ps::T
+end
+
+
+evolve(M::Mixture, (i, ix)::Pair) = i+1 => evolve(M, ix)
+
+function evolve(M::Mixture, (i, x)::Tuple)
+    i = evolve(M.I, i)
+    x = evolve(M.Ps[i], x)
+    (i, x)
+end
+
+mixture(I, args) = Mixture(I, args)
+
+
+
 
 
 struct Synchronize{T} <: Evolution

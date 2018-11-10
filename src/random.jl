@@ -26,7 +26,6 @@ rand(rng::AbstractRNG, D::Randn{T}) where {T} = randn(rng, typeof(D.x))
 rand(rng::AbstractRNG, D::Randn{Array{T}}) where {T} = randn(rng, T, size(D.x))
 
 
-
 struct WhiteNoise <: Evolution
 end
 evolve(::WhiteNoise, (t,x)::Pair{Int}, args...) = (t+1) => Randn(x)

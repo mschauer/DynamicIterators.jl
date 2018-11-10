@@ -4,7 +4,7 @@ using Trajectories
 export evolve, collectfrom, DynamicIterator
 
 export from # evolution
-export Evolve, mix, synchronize # combinators
+export Evolve, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 
