@@ -106,7 +106,7 @@ state((t, xs), M::Synchronize) = (t => xs, Tuple(evolve.(M.Ps, Pair.(t, xs))))
 
 function evolve(M::Synchronize, ((t, x), next)::T) where {T}
     all(u === nothing for u in next) && return nothing
-    tᵒ = minimum(first.(Iterators.filter(!isnothing, next)))
+    tᵒ = minimum(first.(Iterators.filter(x -> !(t===nothing), next))) #use isnothing
     xᵒ = Any[]
     nextᵒ = Any[]
     for  (P, xᵢ, u) in zip(M.Ps, x, next)
