@@ -67,3 +67,33 @@ function evolve(F::Evolve, (i,x)::Pair{T}, j::T) where {T}
     end
     j => x
 end
+
+struct Synchronize{T} <: DynamicIterator
+    Ps::T
+end
+
+"""
+    synchronize
+"""
+synchronize(args...) = Synchronize(args)
+
+
+
+state((t, xs), M::Synchronize) = (t => xs, Tuple(evolve.(M.Ps, Pair.(t, xs))))
+
+
+function evolve(M::Synchronize, ((t, x), next)::T) where {T}
+    all(u === nothing for u in next) && return nothing
+    tᵒ = minimum(first.(Iterators.filter(!isnothing, next)))
+    xᵒ = Any[]
+    nextᵒ = Any[]
+    for  (P, xᵢ, u) in zip(M.Ps, x, next)
+        if !(u === nothing) && u[1] == tᵒ
+            xᵢ = u[2]
+            u = evolve(P, u)
+        end
+        push!(xᵒ, xᵢ)
+        push!(nextᵒ, u)
+    end
+    (tᵒ => Tuple(xᵒ), Tuple(nextᵒ))::T
+end

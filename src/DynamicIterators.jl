@@ -4,13 +4,13 @@ using Trajectories
 export evolve, collectfrom, DynamicIterator
 
 export from # evolution
-export Evolve, mix # combinators
+export Evolve, mix, synchronize # combinators
 
 export trace, endtime # trajectories
 
 export control, timed # control
 
-export WhiteNoise, Randn, Sample
+export WhiteNoise, Randn, Sample, InhomogeneousPoisson
 
 using Random, Base.Iterators
 

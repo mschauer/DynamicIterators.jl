@@ -1,4 +1,5 @@
 using DynamicIterators
+using DynamicIterators: dub
 using Test
 using Trajectories
 
@@ -61,3 +62,12 @@ collatz(n) = n % 2 == 0 ? n÷2 : 3n + 1
 
 @test eltype(Randn(10)) == Int
 @test eltype(Randn{Int}) == Int
+
+@test collectfrom(InhomogeneousPoisson(x -> sin(x) + 1, 2.0), (0.0=>0), 10) isa  Array{Pair{Float64,Int64},1}
+
+P = InhomogeneousPoisson(x -> sin(x) + 1, 2.0)
+
+PP = synchronize(P, P)
+u = DynamicIterators.state(0.0 => (0,0), PP)
+@show u
+@show collectfrom(PP, u, 10)

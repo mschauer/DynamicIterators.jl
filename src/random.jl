@@ -33,3 +33,22 @@ evolve(::WhiteNoise, (t,x)::Pair{Int}, args...) = (t+1) => Randn(x)
 evolve(::WhiteNoise, x, args...) = Randn(x)
 
 eltype(::Type{From{WhiteNoise,T}}) where {T} = T
+
+#abstract type MarkovIterator
+#end
+
+struct InhomogeneousPoisson{T,S,R} <: DynamicIterator
+    λ::S
+    λmax::T
+    rng::R
+end
+InhomogeneousPoisson(λ,λmax) = InhomogeneousPoisson(λ, λmax, Random.GLOBAL_RNG)
+
+function evolve(P::InhomogeneousPoisson, (t, i)::Pair)
+    while true
+        t = t - log(rand(P.rng))/P.λmax
+        if rand(P.rng) ≤ P.λ(t)/P.λmax
+            return t => i + 1
+        end
+    end
+end

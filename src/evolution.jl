@@ -31,24 +31,3 @@ IteratorEltype(::Type{<:From{<:DynamicIterator}}) = HasEltype()
 IteratorEltype(::Type{<:From{I}}) where {I} = IteratorEltype(I)
 
 IteratorSize(::Type{<:From{I}}) where {I} = Iterators.rest_iteratorsize(IteratorSize(I))
-
-
-
-
-
-
-
-struct InhomogeneousPoisson{T,S}
-    λ::S
-    λmax::T
-end
-Interpolation(::InhomogeneousPoisson) = Jump()
-
-function evolve(P::InhomogeneousPoisson, (t, i), rng=Random.GLOBAL_RNG)
-    while true
-        t = t - log(rand(rng))/P.λmax
-        if rand() ≤ P.λ(t)/P.λmax
-            return t => i + 1
-        end
-    end
-end
