@@ -16,7 +16,14 @@ They guarantee `HasEltype()` and `eltype(iter) == T`.
 """
 abstract type Evolution <: DynamicIterator
 end
+const GEvolution = Union{Evolution, UnitRange, StepRange}
 
+"""
+    statefrom(E, x)
+
+Create state for E following `x`.
+"""
+statefrom(E, x) = _iterate(i.itr, (value=i.x,))
 evolve(r::UnitRange, i) = i < last(r) ?  i + 1 : nothing
 function evolve(r::StepRange, i) # Fixme
     i = i + step(r)
@@ -24,14 +31,21 @@ function evolve(r::StepRange, i) # Fixme
 end
 
 
-@inline _iterate(r::Union{UnitRange, StepRange}; value=first(r)) = iterate(r, value)
-@inline _iterate(r::Union{UnitRange, StepRange}, i; value=i) = iterate(r, value)
+@inline _iterate(r::Union{UnitRange, StepRange}) = iterate(r)
+@inline _iterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
+@inline _iterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
+
+_iterate(E::Evolution, state, (value,)::Value=(value=state,)) = dub(evolve(E, value))
+_iterate(E::Evolution, (value,)::Value) = dub(evolve(E, value))
+
+_iterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
+_iterate(E::Evolution, value::Pair, (nextkey,)::Nextkey) = dub(evolve(E, value, nextkey))
 
 iterate(E::Evolution, x=first(E)) = dub(evolve(E, x))
 IteratorSize(::Evolution) = SizeUnknown()
 
-@inline _iterate(E::Evolution, state; value=state) = dub(evolve(E, value))
-@inline _iterate(E::Evolution; value=first(E)) = dub(evolve(E, value))
+_iterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))
+_iterate(E::Evolution, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 
 """
     evolve(f)
@@ -69,34 +83,3 @@ function evolve(F::Evolve, (i,x)::Pair{T}, j::T) where {T}
     end
     j => x
 end
-
-"""
-    from(P, x)
-
-Attach a starting state to a `DynamicIterator`.
-
-
-## Example
-```
-collect(from(1:20, 10))
-```
-"""
-struct From{I,T} <: DynamicIterator
-    itr::I
-    x::T
-end
-from(i, x) = From(i, x)
-
-collectfrom(it, x) = collect(from(it, x))
-collectfrom(it, x, n) = collect(take(from(it, x), n))
-
-@propagate_inbounds iterate(i::From) = i.x, i.x
-@propagate_inbounds iterate(i::From, x) = iterate(i.itr, x)
-
-eltype(::Type{From{I,T}}) where {I<:DynamicIterator,T} = T
-eltype(::Type{<:From{I}}) where {I} = eltype(I)
-
-IteratorEltype(::Type{<:From{<:DynamicIterator}}) = HasEltype()
-IteratorEltype(::Type{<:From{I}}) where {I} = IteratorEltype(I)
-
-IteratorSize(::Type{<:From{I}}) where {I} = Iterators.rest_iteratorsize(IteratorSize(I))

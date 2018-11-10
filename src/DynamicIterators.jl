@@ -48,12 +48,15 @@ _iterate(iter) = iterate(iter)
 
 
 # todo: remove
+#=
 iterate(P::DynamicIterator, x) = dub(evolve(P, x))
-_iterate(P::DynamicIterator, state; value=state) = dub(evolve(P, value))
-_iterate(P::DynamicIterator; value=nothing) = value == nothing ?  dub(evolve(P)) : dub(evolve(P, value))
+_iterate(P::DynamicIterator, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(P, value))
+_iterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, value))
+=#
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
-
+const Value = NamedTuple{(:value,)}
+const Nextkey = NamedTuple{(:nextkey,)}
 
 include("evolution.jl")
 include("combinators.jl")

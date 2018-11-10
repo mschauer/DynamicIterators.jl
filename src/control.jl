@@ -30,3 +30,40 @@ function evolve(M::Control, (t,x))
     u === nothing && return nothing
     u
 end
+
+
+function _iterate(M::Control, (value,)::Value)
+    ϕ = _iterate(M.C, (value=value[1],))
+    ϕ === nothing && return nothing
+    tᵒ, c = ϕ
+
+    ϕ = _iterate(M.P, (value=value, nextkey = tᵒ,))
+    ϕ === nothing && return nothing
+    u, p = ϕ
+
+    u, (c, p)
+end
+
+function iterate(M::Control)
+    ϕ = _iterate(M.C)
+    ϕ === nothing && return nothing
+    tᵒ, c = ϕ
+
+    ϕ = _iterate(M.P, (nextkey = tᵒ,))
+    ϕ === nothing && return nothing
+    u, p = ϕ
+
+    u, (c, p)
+end
+
+function iterate(M::Control, (c, p)::Tuple)
+    ϕ = _iterate(M.C, c)
+    ϕ === nothing && return nothing
+    tᵒ, c = ϕ
+
+    ψ = _iterate(M.P, p, (nextkey = tᵒ,))
+    ψ === nothing && return nothing
+    u, p = ψ
+
+    u, (c, p)
+end
