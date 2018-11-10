@@ -1,7 +1,7 @@
 # DynamicIterators.jl
 
 ## `DynamicIterator`
-You can build a tree from Iterators, but you can form a graph from dynamic iterators.
+Iterators combine to a tree of iterators, but dynamic iterators combine to a network of interacting entities.
 
 Dynamic iterators subtype `<:DynamicIterator`. They extend the iteration protocol and define
 ```
@@ -102,7 +102,6 @@ evolve(E, (i, x)::Pair) = i + 1 => evolve(E, x)
 constitutes a "lifting" of discrete time. This corresponds to enumerating the iterates of an evolution `x = f(x)` as `(1 => x1, 2 => x2, ...)`.
 
 `DynamicIterators` control keywords treat `Pair`s as pair of key and value in concordance with the package `Trajectories` and somewhat in line with Julia's general convention.
-
 
 
 ## Traces
