@@ -1,9 +1,9 @@
 module DynamicIterators
 using Trajectories
 
-export evolve, collectfrom, DynamicIterator
+export collectfrom, DynamicIterator
 
-export from # evolution
+export Evolution, evolve, timelift_evolve, from # evolution
 export Evolve, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories

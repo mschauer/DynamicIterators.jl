@@ -35,9 +35,6 @@ end
 @inline dyniterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
 @inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
 
-dyniterate(E::Evolution, state, (value,)::Value=(value=state,)) = dub(evolve(E, value))
-dyniterate(E::Evolution, (value,)::Value) = dub(evolve(E, value))
-
 dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 dyniterate(E::Evolution, value::Pair, (nextkey,)::Nextkey) = dub(evolve(E, value, nextkey))
 
@@ -73,12 +70,13 @@ struct Evolve{T} <: Evolution
 end
 
 evolve(F::Evolve, x) = F.f(x)
-evolve(F::Evolve, (i,x)::Pair) = i+1 => F.f(x)
+evolve(F::Evolve, u::Pair, args...) = timelift_evolve(F, u, args...)
 
-function evolve(F::Evolve, (i,x)::Pair{T}, j::T) where {T}
+timelift_evolve(E, (i,x)::Pair) = i+1 => evolve(E, x)
+function timelift_evolve(E, (i,x)::Pair{T}, j::T) where {T}
     @assert j ≥ i
     for k in 1:j-i
-        x = evolve(F, x)
+        x = evolve(E, x)
         x === nothing && return nothing
     end
     j => x
