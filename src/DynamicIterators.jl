@@ -3,12 +3,14 @@ using Trajectories
 
 export collectfrom, DynamicIterator
 
+export Key, Control, NextKey, Value # keywords
+
 export Evolution, evolve, timelift_evolve, from # evolution
-export Evolve, mix, synchronize, mixture # combinators
+export Evolve, TimeLift, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 
-export control, timed, Control # control
+export control, timed # control
 
 # random
 export WhiteNoise, Randn, Sample, InhomogeneousPoisson,
@@ -58,7 +60,9 @@ dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, 
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
 const Value = NamedTuple{(:value,)}
-const Nextkey = NamedTuple{(:nextkey,)}
+const Key = NamedTuple{(:key,)}
+const NextKey = NamedTuple{(:nextkey,)}
+const NewKey = NamedTuple{(:newkey,)}
 const Control = NamedTuple{(:control,)}
 const Steps = NamedTuple{(:steps,)}
 
@@ -81,6 +85,7 @@ function dyniterate(iter, state, (steps,)::Steps)
 end
 
 include("evolution.jl")
+include("time.jl")
 include("combinators.jl")
 include("trajectories.jl")
 include("random.jl")

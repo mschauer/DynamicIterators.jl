@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate
+using DynamicIterators: dub, _lastiterate, dyniterate
 using Test
 using Trajectories
 
@@ -46,6 +46,11 @@ As = collectfrom(P, A0, 13)
 @test evolve(1:10, 11) == nothing
 
 @test collect(from(1:14, 10)) == [11, 12, 13, 14]
+
+@testset "time" begin
+      @test dyniterate(1:10, 5, (steps=3,)) == (8, 8)
+      @test dyniterate(TimeLift(1:2:10), (newkey=5,)) == (5=>1, 5=>1)
+end
 
 @testset "Mix" begin
       M = mix((x,y) -> (x+y, y), 0:20000, 0:100)
