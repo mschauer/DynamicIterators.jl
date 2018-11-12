@@ -36,7 +36,7 @@ end
 @inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
 
 dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
-dyniterate(E::Evolution, value::Pair, (nextkey,)::Nextkey) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value, nextkey))
 
 iterate(E::Evolution, x=first(E)) = dub(evolve(E, x))
 IteratorSize(::Evolution) = SizeUnknown()
@@ -53,7 +53,7 @@ Create the DynamicIterator corresponding to the evolution
 ```
 
 Integer keys default to increments.
-Integer control defaults to repetition.
+Integer control default to keys (and repetitions).
 
 ```
 julia> collect(take(from(Evolve(x->x + 1), 10), 5))
@@ -71,6 +71,7 @@ end
 
 evolve(F::Evolve, x) = F.f(x)
 evolve(F::Evolve, u::Pair, args...) = timelift_evolve(F, u, args...)
+dyniterate(E::Evolve, value::Pair, (nextkey,)::Control) = dub(evolve(E, value, nextkey))
 
 timelift_evolve(E, (i,x)::Pair) = i+1 => evolve(E, x)
 function timelift_evolve(E, (i,x)::Pair{T}, j::T) where {T}

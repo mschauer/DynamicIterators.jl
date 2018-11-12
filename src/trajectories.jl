@@ -41,10 +41,11 @@ IteratorSize(::Type{<:From{I}}) where {I} = Iterators.rest_iteratorsize(Iterator
 Trace the trajectoy of a keyed Dynamic iterator
 as `Trajectory`.
 """
-function trace(P, u::Pair, stop; register = x->true)
+function trace(P, u::Pair, stop = x->false; register = x->true)
     X = trajectory((u,))
     while !stop(u)
         u = evolve(P, u)
+        u === nothing && break
         register(u) && push!(X, u)
     end
     X
