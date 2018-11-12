@@ -31,13 +31,13 @@ timed(C, P) = Controlled(C, P)
     u
 end=#
 
-function dyniterate(M::Controlled, (value,)::Value)
+function dyniterate(M::Controlled, ::Nothing, (value,)::Value)
     #ϕ = dyniterate(M.C, (value=value[1],))
     ϕ = dyniterate(M.C)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
 
-    ϕ = dyniterate(M.P, (value=value, control = tᵒ,))
+    ϕ = dyniterate(M.P, nothing, (value=value, control = tᵒ,))
     ϕ === nothing && return nothing
     u, p = ϕ
 
@@ -49,7 +49,7 @@ function iterate(M::Controlled)
     ϕ === nothing && return nothing
     tᵒ, c = ϕ
 
-    ϕ = dyniterate(M.P, (control = tᵒ,))
+    ϕ = dyniterate(M.P, nothing, (control = tᵒ,))
     ϕ === nothing && return nothing
     u, p = ϕ
 

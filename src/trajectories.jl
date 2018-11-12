@@ -22,8 +22,9 @@ from(i, x) = From(i, x)
 collectfrom(it, x) = collect(from(it, x))
 collectfrom(it, x, n) = collect(take(from(it, x), n))
 
-@propagate_inbounds iterate(i::From) = dyniterate(i.itr, (value=i.x,))
+@propagate_inbounds iterate(i::From) = dyniterate(i.itr, nothing, (value=i.x,))
 @propagate_inbounds iterate(i::From, u) = dyniterate(i.itr, u)
+@propagate_inbounds dyniterate(i::From, args...) = dyniterate(i.itr, args...)
 
 
 eltype(::Type{From{I,T}}) where {I<:DynamicIterator,T} = T
@@ -62,13 +63,13 @@ function trace(P, u::Pair, stop = x->false; register = x->true)
     while true
         if register(u)
             X = trajectory((u,))
-            ϕ = dyniterate(P, (value=u,))
+            ϕ = dyniterate(P, nothing, (value=u,))
             ϕ === nothing && return X
             u, state = ϕ
             register(u) && push!(X, u)
             return trace_(P, X, u, state, stop, register)
         else
-            ϕ = dyniterate(P, (value=u,))
+            ϕ = dyniterate(P, nothing, (value=u,))
             ϕ === nothing && break
             u, state = ϕ
             if register(u)
@@ -110,7 +111,7 @@ lastiterate(P, u, stop=u->false) = _lastiterate(P, u, stop)
 
 function _lastiterate(P, u, stop=u->false)
     if !stop(u)
-        ϕ = dyniterate(P, (value=u,))
+        ϕ = dyniterate(P, nothing, (value=u,))
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)

@@ -48,7 +48,8 @@ dedub(x) = x === nothing ? nothing : x[1]
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
 dyniterate(iter, state) = iterate(iter, state)
-dyniterate(iter) = iterate(iter)
+dyniterate(iter, ::Nothing) = iterate(iter)
+dyniterate(iter) = dyniterate(iter, nothing)
 
 
 # todo: remove

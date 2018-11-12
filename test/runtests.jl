@@ -49,7 +49,7 @@ As = collectfrom(P, A0, 13)
 
 @testset "time" begin
       @test dyniterate(1:10, 5, (steps=3,)) == (8, 8)
-      @test dyniterate(TimeLift(1:2:10), (newkey=5,)) == (5=>1, 5=>1)
+      @test dyniterate(TimeLift(1:2:10), nothing, (newkey=5,)) == (5=>1, 5=>1)
 end
 
 @testset "Mix" begin

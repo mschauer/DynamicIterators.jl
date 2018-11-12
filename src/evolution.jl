@@ -31,13 +31,13 @@ function evolve(r::StepRange, i) # Fixme
 end
 
 
-@inline dyniterate(r::Union{UnitRange, StepRange}) = iterate(r)
-@inline dyniterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
+@inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing) = iterate(r)
+@inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing, (value,)::Value) = iterate(r, value)
 @inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
 
 #dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 #dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
-dyniterate(E::Evolution, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, ::Nothing, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
 dyniterate(E::Evolution, state, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
 dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value, control))
 
@@ -45,7 +45,7 @@ dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value
 IteratorSize(::Evolution) = SizeUnknown()
 
 dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))
-dyniterate(E::Evolution, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
+dyniterate(E::Evolution, ::Nothing, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 
 """
     evolve(f)
