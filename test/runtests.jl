@@ -45,6 +45,8 @@ As = collectfrom(P, A0, 13)
 # broken?
 @test evolve(1:10, 11) == nothing
 
+@test collect(from(1:14, 10)) == [11, 12, 13, 14]
+
 @testset "Mix" begin
       M = mix((x,y) -> (x+y, y), 0:20000, 0:100)
       F = from(M, (0,0))
@@ -85,10 +87,17 @@ end
 
 
 @testset "control" begin
+      F = from(control(1:2:20, Evolve(collatz)), 1=>14)
+      ϕ = iterate(F)
+      @test (1 => 14, (1, 1 => 14)) == ϕ
+      ϕ = iterate(F, ϕ[2])
+      @test (3 => 22, (3, 3 => 22)) == ϕ
+      @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
-      @test (3 => 22, (3, 3 => 22)) == iterate(from(control(1:2:20, Evolve(collatz)), 1=>14))
-      @test collectfrom(control(1:2:20, Evolve(collatz)), (1=>14)) isa Array{Pair{Int64,Int64},1}
-
+      F = from(control(3:2:20, Evolve(collatz)), 1=>14)
+      ϕ = iterate(F)
+      @test (3 => 22, (3, 3 => 22)) == ϕ
+      @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
 end
 

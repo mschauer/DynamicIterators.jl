@@ -35,10 +35,13 @@ end
 @inline dyniterate(r::Union{UnitRange, StepRange}, (value,)::Value) = iterate(r, value)
 @inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
 
-dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
-dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value, nextkey))
+#dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
+#dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolution, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, state, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value, control))
 
-iterate(E::Evolution, x=first(E)) = dub(evolve(E, x))
+#iterate(E::Evolution) = dub(evolve(E, x))
 IteratorSize(::Evolution) = SizeUnknown()
 
 dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))

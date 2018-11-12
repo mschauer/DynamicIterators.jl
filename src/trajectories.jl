@@ -5,12 +5,12 @@ endtime(T) = (t, _)::Pair -> t >= T
 """
     from(P, x)
 
-Attach a starting state to a `DynamicIterator`.
+Attach a starting value to a `DynamicIterator`.
 
 
 ## Example
 ```
-collect(from(1:20, 10))
+collect(from(1:14, 10)) == [11, 12, 13, 14]
 ```
 """
 struct From{I,T} <: DynamicIterator
@@ -41,11 +41,59 @@ IteratorSize(::Type{<:From{I}}) where {I} = Iterators.rest_iteratorsize(Iterator
 Trace the trajectoy of a keyed Dynamic iterator
 as `Trajectory`.
 """
-function trace(P, u::Pair, stop = x->false; register = x->true)
+function trace(E::Evolution, u::Pair, stop = x->false; register = x->true)
+    if !register(u)
+        while !stop(u)
+            u = evolve(E, u)
+            u === nothing && error("registered nothing")
+            register(u) && break
+        end
+    end
     X = trajectory((u,))
     while !stop(u)
-        u = evolve(P, u)
+        u = evolve(E, u)
         u === nothing && break
+        register(u) && push!(X, u)
+    end
+    X
+end
+
+function trace(P, u::Pair, stop = x->false; register = x->true)
+    while true
+        if register(u)
+            X = trajectory((u,))
+            ϕ = dyniterate(P, (value=u,))
+            ϕ === nothing && return X
+            u, state = ϕ
+            register(u) && push!(X, u)
+            return trace_(P, X, u, state, stop, register)
+        else
+            ϕ = dyniterate(P, (value=u,))
+            ϕ === nothing && break
+            u, state = ϕ
+            if register(u)
+                X = trajectory((u,))
+                return trace_(P, X, u, state, stop, register)
+            else
+                while !stop(u)
+                    ϕ = dyniterate(P, state)
+                    ϕ === nothing && break
+                    u, state = ϕ
+                    if register(u)
+                        X = trajectory((u,))
+                        return trace_(P, X, u, state, stop, register)
+                    end
+                end
+            end
+        end
+    end
+    error("registered nothing")
+end
+function trace_(P, X::Trajectory, u, state, stop, register)
+    while !stop(u)
+        ϕ = dyniterate(P, state)
+        ϕ === nothing && break
+        u, state = ϕ
         register(u) && push!(X, u)
     end
     X
