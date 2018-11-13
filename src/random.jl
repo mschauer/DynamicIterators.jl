@@ -71,3 +71,22 @@ function evolve(MH::MetropolisHastings, x)
     end
     x
 end
+
+
+#=
+struct Link{S, T} <: DynamicIterator
+    X::S
+    Y::T
+end
+function dyniterate(P::Link, (p, q))
+    u, p = @returnnothing dyniterate(P.X, p)
+    v, q = @returnnothing dyniterate(P.Y, q, (control = u),)
+    v, (p, q)
+end
+
+function dyniterate(S::Sample{Link}, (p, q))
+    u, p = @returnnothing dyniterate(Sample(S.P.X, S.rng), p)
+    v, q = @returnnothing dyniterate(Sample(S.P.Y, S.rng), q, (control = u,))
+    v, (p, q)
+end
+=#
