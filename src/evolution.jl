@@ -39,7 +39,7 @@ end
 
 #dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 #dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
-dyniterate(E::Evolution, ::Nothing, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, (value,)::Start, (control,)::Control2) = dub(evolve(E, value, control))
 dyniterate(E::Evolution, state, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
 dyniterate(E::Evolution, value::Pair, (control,)::Control2) = dub(evolve(E, value, control))
 
@@ -53,7 +53,7 @@ dyniterate(E::Evolution, start::Start) =  dub(evolve(E, start.value))
 dyniterate(E::Evolution, state) =  dub(evolve(E, state))
 
 dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
-dyniterate(E::Evolution, ::Nothing, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
+#dyniterate(E::Evolution, ::Nothing, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 
 """
     evolve(f)

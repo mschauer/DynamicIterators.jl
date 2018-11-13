@@ -38,12 +38,12 @@ function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
     M.f(p, q)
 end
 
-function dyniterate(M::Mix, ::Nothing, (value,)::Value2)
+function dyniterate(M::Mix, (value,)::Start)
     x, y = value
-    ϕ = dyniterate(M.P, (value=x,))
+    ϕ = dyniterate(M.P, Start(x))
     ϕ === nothing && return nothing
     x, p = ϕ
-    ψ = dyniterate(M.Q, (value=y,))
+    ψ = dyniterate(M.Q, Start(y))
     ψ === nothing && return nothing
     y, q = ψ
     x, y = M.f(x, y)

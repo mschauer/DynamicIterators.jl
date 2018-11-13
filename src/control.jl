@@ -23,9 +23,9 @@ end
 control(C, P) = Controlled(C, P)
 timed(C, P) = Controlled(C, P)
 
-function dyniterate(M::Controlled, (value,)::Start)
+function dyniterate(M::Controlled, start::Start)
     tᵒ, c = @returnnothing dyniterate(M.C)
-    u, p = @returnnothing dyniterate(M.P, nothing, (value=value, control = tᵒ,))
+    u, p = @returnnothing dyniterate(M.P, start, (control = tᵒ,))
     u, (c, p)
 end
 

@@ -64,13 +64,13 @@ function trace(P, u::Pair, stop = x->false; register = x->true)
     while true
         if register(u)
             X = trajectory((u,))
-            ϕ = dyniterate(P, nothing, (value=u,))
+            ϕ = dyniterate(P, Start(u))
             ϕ === nothing && return X
             u, state = ϕ
             register(u) && push!(X, u)
             return trace_(P, X, u, state, stop, register)
         else
-            ϕ = dyniterate(P, nothing, (value=u,))
+            ϕ = dyniterate(P, Start(u))
             ϕ === nothing && break
             u, state = ϕ
             if register(u)
