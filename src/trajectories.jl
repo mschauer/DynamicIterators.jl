@@ -116,7 +116,7 @@ function _lastiterate(P, u, stop=u->false)
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)
-            ϕ = dyniterate(P, state, (value=u,))
+            ϕ = dyniterate(P, Value(u, state))
             ϕ === nothing && return u
             u, state = ϕ
         end
