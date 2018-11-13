@@ -25,18 +25,18 @@ timed(C, P) = Controlled(C, P)
 
 function dyniterate(M::Controlled, start::Start)
     tᵒ, c = @returnnothing dyniterate(M.C)
-    u, p = @returnnothing dyniterate(M.P, start, (control = tᵒ,))
+    u, p = @returnnothing dyniterate(M.P, Control(start),  tᵒ)
     u, (c, p)
 end
-
+#=
 function iterate(M::Controlled)
     tᵒ, c = @returnnothing dyniterate(M.C)
     u, p = @returnnothing dyniterate(M.P, nothing, (control = tᵒ,))
     u, (c, p)
 end
-
+=#
 function iterate(M::Controlled, (c, p)::Tuple)
     tᵒ, c = @returnnothing iterate(M.C, c)
-    u, p = @returnnothing dyniterate(M.P, p, (control = tᵒ,))
+    u, p = @returnnothing dyniterate(M.P, Control(p), tᵒ)
     u, (c, p)
 end
