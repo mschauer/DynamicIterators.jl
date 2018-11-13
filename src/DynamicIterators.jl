@@ -3,7 +3,7 @@ using Trajectories
 
 export collectfrom, DynamicIterator
 
-export Key, Control, NextKey, Value # keywords
+export Key, Control2, NextKey, Value2 # keywords
 
 export Evolution, evolve, timelift_evolve, from # evolution
 export Evolve, TimeLift, mix, synchronize, mixture # combinators
@@ -37,13 +37,34 @@ keywords for the `iterate` function.
 abstract type DynamicIterator
 end
 
+abstract type Message
+end
 
+struct Start{T} <: Message
+    value::T
+end
+
+struct Control{T} <: Message
+    state::T
+end
+
+struct Value{T,S} <: Message
+    value::T
+    state::S
+end
+
+iterate(M::Message) = getfield(M, 1), 1
+iterate(M::Message, n) = getfield(M, n + 1), n + 1
+
+export Message, Start, Control, Value
 
 function evolve
 end
 
 dub(x) = x === nothing ? nothing : (x, x)
 dedub(x) = x === nothing ? nothing : x[1]
+
+
 
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
@@ -63,11 +84,11 @@ dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, 
 =#
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
-const Value = NamedTuple{(:value,)}
+const Value2 = NamedTuple{(:value,)}
 const Key = NamedTuple{(:key,)}
 const NextKey = NamedTuple{(:nextkey,)}
 const NewKey = NamedTuple{(:newkey,)}
-const Control = NamedTuple{(:control,)}
+const Control2 = NamedTuple{(:control,)}
 const Steps = NamedTuple{(:steps,)}
 
 macro NT(args...)

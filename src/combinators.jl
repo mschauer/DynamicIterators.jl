@@ -23,10 +23,11 @@ struct Mix{F,T,S} <: DynamicIterator
 end
 
 #dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dyniterate_(M, (value=u,))
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, v::Value) = dyniterate_(M, v)
-#dyniterate(M::Mix, v::Value) = dyniterate_(M, v)
+#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, v::Value2) = dyniterate_(M, v)
+#dyniterate(M::Mix, v::Value2) = dyniterate_(M, v)
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dub(evolve(M, u))
-dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, ::Nothing, (u,)::Value) = dub(evolve(M, u))
+#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, ::Nothing, (u,)::Value2) = dub(evolve(M, u))
+dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Start) = dub(evolve(M, u.value))
 evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (i, pq)::Pair) = i+1 => evolve(M, pq)
 
 function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
@@ -37,7 +38,7 @@ function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
     M.f(p, q)
 end
 
-function dyniterate(M::Mix, ::Nothing, (value,)::Value)
+function dyniterate(M::Mix, ::Nothing, (value,)::Value2)
     x, y = value
     ϕ = dyniterate(M.P, (value=x,))
     ϕ === nothing && return nothing
@@ -48,7 +49,7 @@ function dyniterate(M::Mix, ::Nothing, (value,)::Value)
     x, y = M.f(x, y)
     (x, y), (p, q)
 end
-function dyniterate(M::Mix, u, (value,)::Value=(value=u))
+function dyniterate(M::Mix, u, (value,)::Value2=(value=u))
     p, q = u
     x, y = value
     ϕ = dyniterate(M.P, p, (value=x,))

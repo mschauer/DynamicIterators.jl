@@ -32,19 +32,27 @@ end
 
 
 @inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing) = iterate(r)
-@inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing, (value,)::Value) = iterate(r, value)
-@inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value=(value=i,)) = iterate(r, value)
+@inline dyniterate(r::Union{UnitRange, StepRange}, start::Start) = iterate(r, start.value)
+@inline dyniterate(r::Union{UnitRange, StepRange}, start::Value) = iterate(r, Value.value)
+
+@inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value2=(value=i,)) = iterate(r, value)
 
 #dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 #dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 dyniterate(E::Evolution, ::Nothing, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
 dyniterate(E::Evolution, state, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
-dyniterate(E::Evolution, value::Pair, (control,)::Control) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, value::Pair, (control,)::Control2) = dub(evolve(E, value, control))
+
+dyniterate(E::Evolution, (value,)::Control, control) = dub(evolve(E, value, control))
+
 
 #iterate(E::Evolution) = dub(evolve(E, x))
 IteratorSize(::Evolution) = SizeUnknown()
 
-dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(E, value))
+dyniterate(E::Evolution, start::Start) =  dub(evolve(E, start.value))
+dyniterate(E::Evolution, state) =  dub(evolve(E, state))
+
+dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 dyniterate(E::Evolution, ::Nothing, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 
 """
@@ -74,7 +82,9 @@ end
 
 evolve(F::Evolve, x) = F.f(x)
 evolve(F::Evolve, u::Pair, args...) = timelift_evolve(F, u, args...)
-dyniterate(E::Evolve, value::Pair, (nextkey,)::Control) = dub(evolve(E, value, nextkey))
+#dyniterate(E::Evolve, value::Pair, (nextkey,)::Control2) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolve, (value,)::Control{<:Pair}, nextkey) = dub(evolve(E, value, nextkey))
+
 
 timelift_evolve(E, (i,x)::Pair) = i+1 => evolve(E, x)
 function timelift_evolve(E, (i,x)::Pair{T}, j::T) where {T}

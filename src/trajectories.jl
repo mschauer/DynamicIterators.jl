@@ -22,7 +22,8 @@ from(i, x) = From(i, x)
 collectfrom(it, x) = collect(from(it, x))
 collectfrom(it, x, n) = collect(take(from(it, x), n))
 
-@propagate_inbounds iterate(i::From) = dyniterate(i.itr, nothing, (value=i.x,))
+#@propagate_inbounds iterate(i::From) = dyniterate(i.itr, nothing, (value=i.x,))
+@propagate_inbounds iterate(i::From) = dyniterate(i.itr, Start(i.x))
 @propagate_inbounds iterate(i::From, u) = dyniterate(i.itr, u)
 @propagate_inbounds dyniterate(i::From, args...) = dyniterate(i.itr, args...)
 
@@ -111,7 +112,7 @@ lastiterate(P, u, stop=u->false) = _lastiterate(P, u, stop)
 
 function _lastiterate(P, u, stop=u->false)
     if !stop(u)
-        ϕ = dyniterate(P, nothing, (value=u,))
+        ϕ = dyniterate(P, Start(u))
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)
