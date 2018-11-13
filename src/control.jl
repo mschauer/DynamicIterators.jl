@@ -23,47 +23,20 @@ end
 control(C, P) = Controlled(C, P)
 timed(C, P) = Controlled(C, P)
 
-#=function evolve(M::Controlled, (t,x))
-    tᵒ = evolve(M.C, t)
-    tᵒ === nothing && return nothing
-    u = evolve(M.P, t=>x, tᵒ)
-    u === nothing && return nothing
-    u
-end=#
-
 function dyniterate(M::Controlled, ::Nothing, (value,)::Value)
-    #ϕ = dyniterate(M.C, (value=value[1],))
-    ϕ = dyniterate(M.C)
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ϕ = dyniterate(M.P, nothing, (value=value, control = tᵒ,))
-    ϕ === nothing && return nothing
-    u, p = ϕ
-
+    tᵒ, c = @returnnothing dyniterate(M.C)
+    u, p = @returnnothing dyniterate(M.P, nothing, (value=value, control = tᵒ,))
     u, (c, p)
 end
 
 function iterate(M::Controlled)
-    ϕ = dyniterate(M.C)
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ϕ = dyniterate(M.P, nothing, (control = tᵒ,))
-    ϕ === nothing && return nothing
-    u, p = ϕ
-
+    tᵒ, c = @returnnothing dyniterate(M.C)
+    u, p = @returnnothing dyniterate(M.P, nothing, (control = tᵒ,))
     u, (c, p)
 end
 
 function iterate(M::Controlled, (c, p)::Tuple)
-    ϕ = iterate(M.C, c)
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ψ = dyniterate(M.P, p, (control = tᵒ,))
-    ψ === nothing && return nothing
-    u, p = ψ
-
+    tᵒ, c = @returnnothing iterate(M.C, c)
+    u, p = @returnnothing dyniterate(M.P, p, (control = tᵒ,))
     u, (c, p)
 end

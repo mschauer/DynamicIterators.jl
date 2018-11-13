@@ -51,6 +51,9 @@ dyniterate(iter, state) = iterate(iter, state)
 dyniterate(iter, ::Nothing) = iterate(iter)
 dyniterate(iter) = dyniterate(iter, nothing)
 
+macro returnnothing(exp)
+    quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
+end
 
 # todo: remove
 #=
@@ -67,23 +70,7 @@ const NewKey = NamedTuple{(:newkey,)}
 const Control = NamedTuple{(:control,)}
 const Steps = NamedTuple{(:steps,)}
 
-"""
-    dyniterate(iter, state, (steps,)::Steps)
 
-Advance the iterator `steps` times, and for negative
-numbers, if implemented, rewind the iterator `-steps`
-times.
-"""
-function dyniterate(iter, state, (steps,)::Steps)
-    @assert steps >= 0
-    local x
-    for i in 0
-        ϕ = iterate(iter, state)
-        ϕ === nothing && return nothing
-        x, state = ϕ
-    end
-    x
-end
 
 include("evolution.jl")
 include("time.jl")
