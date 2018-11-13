@@ -57,7 +57,7 @@ end
 @test collect(from(1:14, 10)) == [11, 12, 13, 14]
 
 @testset "time" begin
-      @test dyniterate(1:10, 5, (steps=3,)) == (8, 8)
+      @test dyniterate(1:10, Steps(5, 3)) == (8, 8)
       @test dyniterate(TimeLift(1:2:10), nothing, (newkey=5,)) == (5=>1, 5=>1)
 end
 

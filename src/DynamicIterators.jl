@@ -52,11 +52,15 @@ struct Value{T,S} <: Message
     value::T
     state::S
 end
+struct Steps{T} <: Message
+    state::T
+    n::Int
+end
 
 iterate(M::Message) = getfield(M, 1), 1
 iterate(M::Message, n) = getfield(M, n + 1), n + 1
 
-export Message, Start, Control, Value
+export Message, Start, Control, Value, Steps
 
 function evolve
 end
@@ -89,7 +93,6 @@ const Key = NamedTuple{(:key,)}
 const NextKey = NamedTuple{(:nextkey,)}
 const NewKey = NamedTuple{(:newkey,)}
 const Control2 = NamedTuple{(:control,)}
-const Steps = NamedTuple{(:steps,)}
 
 macro NT(args...)
     :(NamedTuple{($(args)...,)})

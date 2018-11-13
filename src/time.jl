@@ -30,7 +30,7 @@ Advance the iterator `steps` times, and for negative
 numbers, if implemented, rewind the iterator `-steps`
 times.
 """
-function dyniterate(iter, state, (n,)::Steps)
+function dyniterate(iter, (state,n)::Steps)
     @assert n ≥ 1
     local x
     for k in 1:n
@@ -38,8 +38,8 @@ function dyniterate(iter, state, (n,)::Steps)
     end
     x, state
 end
-function dyniterate(iter, ::Nothing, (n,)::Steps)
+function dyniterate(iter, (state,n)::Steps{Nothing})
     ϕ = @returnnothing dyniterate(iter)
     n == 1 && return ϕ
-    dyniterate(iter, ϕ[2], (steps = n-1,))
+    dyniterate(iter, Steps(ϕ[2], n-1))
 end

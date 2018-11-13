@@ -35,7 +35,7 @@ end
 @inline dyniterate(r::Union{UnitRange, StepRange}, start::Start) = iterate(r, start.value)
 @inline dyniterate(r::Union{UnitRange, StepRange}, start::Value) = iterate(r, Value.value)
 
-@inline dyniterate(r::Union{UnitRange, StepRange}, i, (value,)::Value2=(value=i,)) = iterate(r, value)
+@inline dyniterate(r::Union{UnitRange, StepRange}, i::Int, (value,)::Value2=(value=i,)) = iterate(r, value)
 
 #dyniterate(E::Evolution, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 #dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
