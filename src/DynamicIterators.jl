@@ -70,6 +70,9 @@ const NewKey = NamedTuple{(:newkey,)}
 const Control = NamedTuple{(:control,)}
 const Steps = NamedTuple{(:steps,)}
 
+macro NT(args...)
+    :(NamedTuple{($(args)...,)})
+end
 
 
 include("evolution.jl")
