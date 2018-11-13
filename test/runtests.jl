@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate, dyniterate
+using DynamicIterators: dub, _lastiterate, dyniterate, Sample
 using Test
 using Trajectories
 
