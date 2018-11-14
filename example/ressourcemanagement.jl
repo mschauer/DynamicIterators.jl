@@ -1,8 +1,6 @@
 
 abstract type Message
 end
-Base.iterate(M::Message) = getfield(M, 1), 1
-Base.iterate(M::Message, n) = getfield(M, n + 1), n + 1
 
 
 struct DZip{S,T}
@@ -19,6 +17,9 @@ struct Postprocess{T,S} <: Message
     state::T
     signal::S
 end
+Base.iterate(M::Postprocess) = M.state, 1
+Base.iterate(M::Postprocess, Any) = M.signal, nothing
+Base.iterate(M::Postprocess, ::Nothing) = nothing
 
 
 struct DRange{T}
@@ -49,17 +50,16 @@ function dyniterate(Z::DZip, (p, q))
 end
 
 
-function dyniterate(Z::DZip, u::Postprocess)
-    p, q = u.state
+function dyniterate(Z::DZip, ((p,q), signal)::Postprocess)
     ϕ = dyniterate(Z.X, p)
-    ϕ === nothing && return dyniterate(Z.Y, u.signal(q))
+    ϕ === nothing && return dyniterate(Z.Y, signal(q))
     x, p = ϕ
 
     ϕ = dyniterate(Z.Y, q)
-    ϕ === nothing && return dyniterate(Z.X, u.signal(p))
+    ϕ === nothing && return dyniterate(Z.X, signal(p))
     y, q = ϕ
 
-    (x, y), Postprocess((p, q), u.signal)
+    (x, y), Postprocess((p, q), signal)
 end
 
 
