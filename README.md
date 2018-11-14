@@ -56,7 +56,10 @@ Message (and third argument) | Meaning
 `Value(x)`                  | continue to iterate from the state corresponding to iterate `x`
 `NextKey(state), nextkey`   | advance an iterator over pairs of `key=>values` to `nextkey`
 `Steps(n)`                  | advance the iterator `n` steps or possibly rewind if `n` negative
-`Control(), control`        | control term as in the Kalman filter
+`Control(state), control`   | control term as in the Kalman filter⋆
+`Sample(state[,rng])`       | sample from iterates⋆
+
+⋆persistent messages: `dyniterate` returns a state again wrapped by the message
 
 
 ## `Evolution`: Evolution-type dynamic iterators

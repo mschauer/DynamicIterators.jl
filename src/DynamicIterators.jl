@@ -100,12 +100,12 @@ end
 
 dub(x) = x === nothing ? nothing : (x, x)
 dedub(x) = x === nothing ? nothing : x[1]
-
+dubwith(x, c) = x === nothing ? nothing : (x, c(x))
 
 
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
-dyniterate(iter, state) = iteratefallback(iter, state)
+#dyniterate(iter, state) = iteratefallback(iter, state)
 iteratefallback(iter, state) = iterate(iter, state)
 iteratefallback(iter, ::Nothing) = iterate(iter)
 iteratefallback(iter::DynamicIterator, state) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))

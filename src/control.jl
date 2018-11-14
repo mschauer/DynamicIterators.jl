@@ -28,8 +28,8 @@ function dyniterate(M::Controlled, start::Union{Start,Nothing})
     u, p = @returnnothing dyniterate(M.P, Control(start),  tᵒ)
     u, (c, p)
 end
-function iterate(M::Controlled, (c, p)::Tuple)
+function dyniterate(M::Controlled, (c, p)::Tuple)
     tᵒ, c = @returnnothing iterate(M.C, c)
-    u, p = @returnnothing dyniterate(M.P, Control(p), tᵒ)
+    u, p = @returnnothing dyniterate(M.P, p, tᵒ)
     u, (c, p)
 end

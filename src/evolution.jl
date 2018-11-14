@@ -31,9 +31,10 @@ evolve(r::StepRange, ::Nothing) = r.start
 @inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing) = iterate(r)
 @inline dyniterate(r::Union{UnitRange, StepRange}, start::Start) = iterate(r, start.value)
 
-dyniterate(E::Evolution, (start,)::Control{<:Union{Start,Value}}, control) = dub(evolve(E, start.value, control))
+
+dyniterate(E::Evolution, (start,)::Control{<:Union{Start,Value}}, control) = dubwith(evolve(E, start.value, control), Control)
 dyniterate(E::GEvolution, value::Pair) = dub(evolve(E, value))
-dyniterate(E::Evolution, (value,)::Control, control) = dub(evolve(E, value, control))
+dyniterate(E::Evolution, (value,)::Control, control) = dubwith(evolve(E, value, control), Control)
 
 
 IteratorSize(::Evolution) = SizeUnknown()
@@ -70,7 +71,7 @@ evolve(F::Evolve, x) = F.f(x)
 
 evolve(F::Evolve, u::Pair, args...) = timelift_evolve(F, u, args...)
 
-dyniterate(E::Evolve, (value,)::Control{<:Pair}, nextkey) = dub(evolve(E, value, nextkey))
+dyniterate(E::Evolve, (value,)::Control{<:Pair}, nextkey) = dubwith(evolve(E, value, nextkey), Control)
 
 
 timelift_evolve(E, (i,x)::Pair) = i+1 => evolve(E, x)
