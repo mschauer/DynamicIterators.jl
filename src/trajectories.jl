@@ -64,6 +64,7 @@ function trace(E::Evolution, u::Pair, stop = x->false; register = x->true)
     X
 end
 
+# Doing this type stable
 function trace(P, u::Pair, stop = x->false; register = x->true)
     while true
         if register(u)
@@ -105,18 +106,19 @@ function trace_(P, X::Trajectory, u, state, stop, register)
     X
 end
 
-function lastiterate(P::DynamicIterator, u, stop=u->false)
+function lastiterate(P::Evolution, u, stop=u->false)
     while !stop(u)
         u = evolve(P, u)
         u === nothing && return u
     end
     u
 end
-lastiterate(P, u, stop=u->false) = _lastiterate(P, u, stop)
+lastiterate(P, u, stop=u->false) = _lastiterate(P, Start(u), stop)
+lastiterate(P, u::Message, stop=u->false) = _lastiterate(P, u, stop)
 
 function _lastiterate(P, u, stop=u->false)
     if !stop(u)
-        ϕ = dyniterate(P, Start(u))
+        ϕ = dyniterate(P, u)
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)
