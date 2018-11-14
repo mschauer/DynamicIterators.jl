@@ -14,7 +14,7 @@ export control, timed # control
 
 # random
 export WhiteNoise, Randn, InhomogeneousPoisson,
-    MetropolisHastings #,Sample
+    MetropolisHastings #,Sample2
 
 using Random, Base.Iterators
 
@@ -56,11 +56,33 @@ struct Steps{T} <: Message
     state::T
     n::Int
 end
+struct Sample{T,RNG} <: Message
+    state::T
+    rng::RNG
+end
+
+struct NewKey{S,T} <: Message
+    state::S
+    value::T
+end
+#=struct NewKey{T,S} <: Message
+    value::T
+    state::S
+end
+struct NewKey{T,S} <: Message
+    value::T
+    state::S
+end
+=#
+
+Sample(x) = Sample(x, Random.GLOBAL_RNG)
+
 
 iterate(M::Message) = getfield(M, 1), 1
 iterate(M::Message, n) = getfield(M, n + 1), n + 1
 
-export Message, Start, Control, Value, Steps
+export Message, Start, Control, Value, Steps, Sample,
+    NewKey
 
 function evolve
 end
@@ -91,7 +113,7 @@ IteratorSize(::DynamicIterator) = SizeUnknown()
 const Value2 = NamedTuple{(:value,)}
 const Key = NamedTuple{(:key,)}
 const NextKey = NamedTuple{(:nextkey,)}
-const NewKey = NamedTuple{(:newkey,)}
+
 const Control2 = NamedTuple{(:control,)}
 
 macro NT(args...)

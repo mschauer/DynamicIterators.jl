@@ -1,12 +1,12 @@
 
-struct Sample{T,S} <: Evolution
+struct Sample2{T,S} <: Evolution
     P::T
     rng::S
-    Sample(P::T, rng=Random.GLOBAL_RNG) where {T} = new{T,typeof(rng)}(P, rng)
+    Sample2(P::T, rng=Random.GLOBAL_RNG) where {T} = new{T,typeof(rng)}(P, rng)
 end
-eltype(::Type{Sample{T}}) where {T} = eltype(T)
+eltype(::Type{Sample2{T}}) where {T} = eltype(T)
 
-function evolve(X::Sample, (t,x)::Pair, args...)
+function evolve(X::Sample2, (t,x)::Pair, args...)
     u = evolve(X.P, (t=>x), args...)
     u === nothing && return nothing
     t, D = u
@@ -30,6 +30,7 @@ struct WhiteNoise <: Evolution
 end
 evolve(::WhiteNoise, (t,x)::Pair{Int}, args...) = (t+1) => Randn(x)
 evolve(::WhiteNoise, x, args...) = Randn(x)
+evolve(::WhiteNoise, x::Sample, args...) = rand(x.rng, Randn(x))
 
 eltype(::Type{From{WhiteNoise,T}}) where {T} = T
 
@@ -84,9 +85,9 @@ function dyniterate(P::Link, (p, q))
     v, (p, q)
 end
 
-function dyniterate(S::Sample{Link}, (p, q))
-    u, p = @returnnothing dyniterate(Sample(S.P.X, S.rng), p)
-    v, q = @returnnothing dyniterate(Sample(S.P.Y, S.rng), q, (control = u,))
+function dyniterate(S::Sample2{Link}, (p, q))
+    u, p = @returnnothing dyniterate(Sample2(S.P.X, S.rng), p)
+    v, q = @returnnothing dyniterate(Sample2(S.P.Y, S.rng), q, (control = u,))
     v, (p, q)
 end
 =#

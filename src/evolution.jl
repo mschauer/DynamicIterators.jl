@@ -17,6 +17,7 @@ They guarantee `HasEltype()` and `eltype(iter) == T`.
 abstract type Evolution <: DynamicIterator
 end
 const GEvolution = Union{Evolution, UnitRange, StepRange}
+const GDynamicIterator = Union{DynamicIterator, UnitRange, StepRange}
 
 """
     statefrom(E, x)
@@ -24,11 +25,13 @@ const GEvolution = Union{Evolution, UnitRange, StepRange}
 Create state for E following `x`.
 """
 statefrom(E, x) = dyniterate(i.itr, (value=i.x,))
-evolve(r::UnitRange, i) = i < last(r) ?  i + 1 : nothing
+evolve(r::UnitRange, i::Integer) = i < last(r) ?  i + 1 : nothing
+evolve(r::UnitRange, ::Nothing) = r.start
 function evolve(r::StepRange, i) # Fixme
     i = i + step(r)
     i <= last(r) ?  i : nothing
 end
+evolve(r::StepRange, ::Nothing) = r.start
 
 
 @inline dyniterate(r::Union{UnitRange, StepRange}, ::Nothing) = iterate(r)
@@ -41,7 +44,7 @@ end
 #dyniterate(E::Evolution, state, (value, nextkey)::NamedTuple{(:value,:nextkey)}) = dub(evolve(E, value, nextkey))
 dyniterate(E::Evolution, (start,)::Control{<:Union{Start,Value}}, control) = dub(evolve(E, start.value, control))
 #dyniterate(E::Evolution, state, (value, control)::NamedTuple{(:value,:control)}) = dub(evolve(E, value, control))
-dyniterate(E::Evolution, value::Pair, (control,)::Control2) = dub(evolve(E, value, control))
+dyniterate(E::GEvolution, value::Pair) = dub(evolve(E, value))
 
 dyniterate(E::Evolution, (value,)::Control, control) = dub(evolve(E, value, control))
 
@@ -50,7 +53,7 @@ dyniterate(E::Evolution, (value,)::Control, control) = dub(evolve(E, value, cont
 IteratorSize(::Evolution) = SizeUnknown()
 
 dyniterate(E::Evolution, start::Union{Value,Start}) =  dub(evolve(E, start.value))
-dyniterate(E::Evolution, state) =  dub(evolve(E, state))
+dyniterate(E::GEvolution, state) = dub(evolve(E, state))
 
 #dyniterate(E::Evolution, state, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))
 #dyniterate(E::Evolution, ::Nothing, (value,)::NamedTuple{(:value,)}) = dub(evolve(E, value))

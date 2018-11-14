@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate, dyniterate, Sample
+using DynamicIterators: dub, _lastiterate, dyniterate, Sample2
 using Test
 using Trajectories
 
@@ -58,7 +58,7 @@ end
 
 @testset "time" begin
       @test dyniterate(1:10, Steps(5, 3)) == (8, 8)
-      @test dyniterate(TimeLift(1:2:10), nothing, (newkey=5,)) == (5=>1, 5=>1)
+      @test dyniterate(TimeLift(1:2:10), NewKey(1=>nothing, 5)) == (5=>1, 5=>1)
 end
 
 @testset "Mix" begin
@@ -79,9 +79,9 @@ end
 @testset "random" begin
       @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
-      @test collectfrom(Sample(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
+      @test collectfrom(Sample2(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
 
-      @test eltype(from(Sample(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
+      @test eltype(from(Sample2(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
 
 
       @test eltype(Randn(10)) == Int
