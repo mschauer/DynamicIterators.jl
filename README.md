@@ -4,8 +4,12 @@
 Iterators combine to a tree of iterators, but dynamic iterators combine to a network of interacting entities.
 
 Dynamic iterators subtype `<:DynamicIterator`. They extend the iteration protocol and define
+```julia
+    dyniterate(iter, somemessage(state))
 ```
-    dyniterate(iter, message(state))
+or
+```julia
+    dyniterate(iter, othermessage(state), arg)
 ```
 where message wraps a state or other relevant information.
 For example the definition
@@ -47,7 +51,7 @@ A preliminary list of supported messages:
 
 Message (and third argument) | Meaning
 ----------------------------|--------------------
-`Start(noting)`             | Start the iterator at its default
+`Start(noting)`             | start the iterator at its default
 `Start(x)`                  | start the iterate from the state corresponding to value `x`
 `Value(x)`                  | continue to iterate from the state corresponding to iterate `x`
 `NextKey(state), nextkey`   | advance an iterator over pairs of `key=>values` to `nextkey`
