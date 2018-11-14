@@ -80,6 +80,7 @@ end
       @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
       @test collectfrom(Sample2(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
+      @test_broken collectfrom(WhiteNoise(), Sample(0 => 0.0), 10) isa Array{Pair{Int64,Float64},1}
 
       @test eltype(from(Sample2(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
 

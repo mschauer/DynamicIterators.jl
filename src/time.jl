@@ -5,11 +5,11 @@ end
 
 function dyniterate(TL::TimeLift, (i, state)::Pair)
     x, state = @returnnothing dyniterate(TL.iter, state)
-    i + 1 => x, (i => state)
+    i + 1 => x, (i + 1 => state)
 end
 
-function dyniterate(TL::TimeLift, (i, state)::Pair, (j,)::NextKey)
-    i == j && return (i, state)
+function dyniterate(TL::TimeLift, ((i, state), j)::NextKey{<:Pair})
+    i == j && return i => state
     x, state = @returnnothing dyniterate(TL.iter, Steps(state, j-i))
     j => x, (j => state)
 end

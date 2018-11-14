@@ -28,11 +28,14 @@ rand(rng::AbstractRNG, D::Randn{Array{T}}) where {T} = randn(rng, T, size(D.x))
 
 struct WhiteNoise <: Evolution
 end
-evolve(::WhiteNoise, (t,x)::Pair{Int}, args...) = (t+1) => Randn(x)
+evolve(::WhiteNoise, (t,x)::Pair{Int}) = (t+1) => Randn(x)
 evolve(::WhiteNoise, x, args...) = Randn(x)
-evolve(::WhiteNoise, x::Sample, args...) = rand(x.rng, Randn(x))
+evolve(WN::WhiteNoise, (x,rng)::Sample) = rand(rng, evolve(WN, x))
+evolve(WN::WhiteNoise, ((t, x), rng)::Sample{<:Pair{Int}}) = (t+1) => rand(rng, evolve(WN, x))
 
 eltype(::Type{From{WhiteNoise,T}}) where {T} = T
+eltype(::Type{From{WhiteNoise, Sample{T,<:Any}}}) where {T} = T
+eltype(::Type{Iterators.Take{From{WhiteNoise, Sample{T,<:Any}}}}) where {T} = T
 
 #abstract type MarkovIterator
 #end

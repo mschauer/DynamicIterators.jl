@@ -60,20 +60,19 @@ struct Sample{T,RNG} <: Message
     state::T
     rng::RNG
 end
-
 struct NewKey{S,T} <: Message
     state::S
     value::T
 end
-#=struct NewKey{T,S} <: Message
-    value::T
+struct Key{S,T} <: Message
     state::S
-end
-struct NewKey{T,S} <: Message
     value::T
-    state::S
 end
-=#
+struct NextKey{S,T} <: Message
+    state::S
+    value::T
+end
+
 
 Sample(x) = Sample(x, Random.GLOBAL_RNG)
 
@@ -82,7 +81,7 @@ iterate(M::Message) = getfield(M, 1), 1
 iterate(M::Message, n) = getfield(M, n + 1), n + 1
 
 export Message, Start, Control, Value, Steps, Sample,
-    NewKey
+    NewKey, Key, NextKey
 
 function evolve
 end
@@ -96,7 +95,6 @@ dedub(x) = x === nothing ? nothing : x[1]
 # when keywords are absent
 dyniterate(iter, state) = iterate(iter, state)
 dyniterate(iter, ::Nothing) = iterate(iter)
-dyniterate(iter) = dyniterate(iter, nothing)
 
 macro returnnothing(exp)
     quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
@@ -110,11 +108,7 @@ dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, 
 =#
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
-const Value2 = NamedTuple{(:value,)}
-const Key = NamedTuple{(:key,)}
-const NextKey = NamedTuple{(:nextkey,)}
 
-const Control2 = NamedTuple{(:control,)}
 
 macro NT(args...)
     :(NamedTuple{($(args)...,)})
