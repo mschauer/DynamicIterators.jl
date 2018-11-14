@@ -44,13 +44,13 @@ end
 abstract type Message2 <: Message # to elements
 end
 
-struct Start{T} <: Message
+struct Start{T} <: Message1
     value::T
 end
 iterate(start::Start) = start.value, nothing
 iterate(start::Start, ::Nothing) = nothing
 
-struct Control{T} <: Message
+struct Control{T} <: Message1
     state::T
 end
 iterate(start::Control) = start.state, nothing
