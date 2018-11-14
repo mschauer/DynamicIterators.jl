@@ -4,8 +4,9 @@ struct Bind{T,S} <: DynamicIterator
     Y::S
     P::T
 end
+bind(Y,P::DynamicIterator) = Bind(Y,P)
 
-function dyniterate(M::Bind, start::Start)
+function dyniterate(M::Bind, start::T) where {T<:Union{Start,Nothing}}
     v, q = @returnnothing iterate(M.Y)
     u, p = @returnnothing dyniterate(M.P, start, v)
     u, (q, p)

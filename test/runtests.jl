@@ -5,6 +5,8 @@ using Trajectories
 
 @testset "Examples" begin
       include("../example/metropolishastings.jl")
+      include("../example/cumsum.jl")
+
 end
 
 c = collect

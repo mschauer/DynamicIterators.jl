@@ -23,6 +23,26 @@ dyniterate(iter, ::Nothing)
 ```
 Some messages make the iterator accept a third argument.
 
+A simple example using `bind` to bind an iterator to an iterator using the three-argument form of `dyniterate`:
+```julia
+using DynamicIterators
+import DynamicIterators: dyniterate
+
+struct Summed <: DynamicIterator
+end
+
+function dyniterate(::Summed, ::Nothing, y)
+    y, y
+end
+
+function dyniterate(::Summed, i, y)
+    i + y, i + y
+end
+
+@show collect(bind(1:5, Summed()))
+```
+
+
 A preliminary list of supported messages:
 
 Message (and third argument) | Meaning

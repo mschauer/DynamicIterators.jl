@@ -6,7 +6,7 @@ export collectfrom, DynamicIterator
 export Key, NextKey # keywords
 
 export Evolution, evolve, timelift_evolve, from # evolution
-export Bind, Evolve, TimeLift, mix, synchronize, mixture # combinators
+export Bind, bind, Evolve, TimeLift, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 
@@ -21,7 +21,7 @@ using Random, Base.Iterators
 using Base.Iterators
 using Base: SizeUnknown, HasEltype
 import Base: iterate, IteratorSize, @propagate_inbounds, IsInfinite, eltype, IteratorEltype,
-    rand, EltypeUnknown, HasEltype
+    rand, EltypeUnknown, HasEltype, bind
 
 
 # keyword arguments:
@@ -93,9 +93,14 @@ dedub(x) = x === nothing ? nothing : x[1]
 
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
-dyniterate(iter, state) = iterate(iter, state)
-dyniterate(iter, ::Nothing) = iterate(iter)
+dyniterate(iter, state) = iteratefallback(iter, state)
+iteratefallback(iter, state) = iterate(iter, state)
+iteratefallback(iter, ::Nothing) = iterate(iter)
+#dyniterate(iter::DynamicIterator, ::Nothing) = error("No starting point known for $iter. Use `from`.")
 dyniterate(iter, ::Start{Nothing}) = iterate(iter)
+
+iterate(iter::DynamicIterator) = dyniterate(iter, nothing)
+iterate(iter::DynamicIterator, state) = dyniterate(iter, state)
 
 macro returnnothing(exp)
     quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
