@@ -23,47 +23,13 @@ end
 control(C, P) = Controlled(C, P)
 timed(C, P) = Controlled(C, P)
 
-function evolve(M::Controlled, (t,x))
-    tᵒ = evolve(M.C, t)
-    tᵒ === nothing && return nothing
-    u = evolve(M.P, t=>x, tᵒ)
-    u === nothing && return nothing
-    u
-end
-
-
-function dyniterate(M::Controlled, (value,)::Value)
-    ϕ = dyniterate(M.C, (value=value[1],))
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ϕ = dyniterate(M.P, (value=value, nextkey = tᵒ,))
-    ϕ === nothing && return nothing
-    u, p = ϕ
-
+function dyniterate(M::Controlled, start::Union{Start,Nothing})
+    tᵒ, c = @returnnothing dyniterate(M.C, nothing)
+    u, p = @returnnothing dyniterate(M.P, Control(start),  tᵒ)
     u, (c, p)
 end
-
-function iterate(M::Controlled)
-    ϕ = dyniterate(M.C)
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ϕ = dyniterate(M.P, (nextkey = tᵒ,))
-    ϕ === nothing && return nothing
-    u, p = ϕ
-
-    u, (c, p)
-end
-
 function iterate(M::Controlled, (c, p)::Tuple)
-    ϕ = dyniterate(M.C, c)
-    ϕ === nothing && return nothing
-    tᵒ, c = ϕ
-
-    ψ = dyniterate(M.P, p, (nextkey = tᵒ,))
-    ψ === nothing && return nothing
-    u, p = ψ
-
+    tᵒ, c = @returnnothing iterate(M.C, c)
+    u, p = @returnnothing dyniterate(M.P, Control(p), tᵒ)
     u, (c, p)
 end

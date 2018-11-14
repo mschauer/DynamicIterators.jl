@@ -1,7 +1,11 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate
+using DynamicIterators: dub, _lastiterate, dyniterate, Sampled
 using Test
 using Trajectories
+
+@testset "Examples" begin
+      include("../example/metropolishastings.jl")
+end
 
 c = collect
 cf = collectfrom
@@ -9,41 +13,57 @@ cf = collectfrom
 # Arnolds cat map, repeats after n iterations
 # https://en.wikipedia.org/wiki/Arnold%27s_cat_map
 
-A = [ 0 0 0 0 0 0
-      0 1 1 1 1 0
-      0 1 0 0 1 0
-      0 1 1 1 1 0
-      0 1 0 0 1 0
-      0 0 0 0 0 0
-]
-arnold_imap(x, (m,n) = size(x)) = CartesianIndex(1 + (2x[1]+ x[2] - 3)%m, 1 + (x[1] + x[2] - 2) % n)
-arnold(A) = [A[arnold_imap(x, size(A))] for x in CartesianIndices(A)]
-A0 = copy(A)
-P = Evolve(arnold)
-let A = A0
-      for i in 1:12
-            A = evolve(P, A)
+@testset "Evolve" begin
+
+      A = [ 0 0 0 0 0 0
+            0 1 1 1 1 0
+            0 1 0 0 1 0
+            0 1 1 1 1 0
+            0 1 0 0 1 0
+            0 0 0 0 0 0
+      ]
+      arnold_imap(x, (m,n) = size(x)) = CartesianIndex(1 + (2x[1]+ x[2] - 3)%m, 1 + (x[1] + x[2] - 2) % n)
+      arnold(A) = [A[arnold_imap(x, size(A))] for x in CartesianIndices(A)]
+      A0 = copy(A)
+      P = Evolve(arnold)
+      let A = A0
+            for i in 1:12
+                  A = evolve(P, A)
+            end
+            @test A == A0
       end
+
+      i, A = evolve(P, (0=>A0), 12)
       @test A == A0
+      @test i == 12
+
+      (i, A), _ = dyniterate(P, Control(0=>A0), 12)
+      @test A == A0
+      @test i == 12
+
+
+      X = trace(P, (0=>A0), endtime(12))
+      @test X isa Trajectory{Array{Int64,1},Array{Array{Int64,2},1}}
+      @test keys(X) == 0:12
+      @test last(values(X)) == A0
+
+      As = collectfrom(P, A0, 13)
+      @test As[1] == As[13]
+
+      @test evolve(1:10, 5) == 6
+      @test evolve(1:10, 10) == nothing
+
+      # broken?
+      @test evolve(1:10, 11) == nothing
+
+
 end
+@test collect(from(1:14, 10)) == [11, 12, 13, 14]
 
-i, A = evolve(P, (0=>A0), 12)
-@test A == A0
-@test i == 12
-
-X = trace(P, (0=>A0), endtime(12))
-@test X isa Trajectory{Array{Int64,1},Array{Array{Int64,2},1}}
-@test keys(X) == 0:12
-@test last(values(X)) == A0
-
-As = collectfrom(P, A0, 13)
-@test As[1] == As[13]
-
-@test evolve(1:10, 5) == 6
-@test evolve(1:10, 10) == nothing
-
-# broken?
-@test evolve(1:10, 11) == nothing
+@testset "time" begin
+      @test dyniterate(1:10, Steps(5, 3)) == (8, 8)
+      @test dyniterate(TimeLift(1:2:10), NewKey(1=>nothing, 5)) == (5=>1, 5=>1)
+end
 
 @testset "Mix" begin
       M = mix((x,y) -> (x+y, y), 0:20000, 0:100)
@@ -63,9 +83,17 @@ end
 @testset "random" begin
       @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
-      @test collectfrom(Sample(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
+      @test collectfrom(Sampled(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
 
-      @test eltype(from(Sample(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
+      @test Base.IteratorEltype(from(WhiteNoise(), Sample(0 => 0.0))) == Base.EltypeUnknown()
+
+      @test Base.IteratorEltype(from(WhiteNoise(), Start(0 => DynamicIterators.Randn(0.0)))) == Base.HasEltype()
+      @test eltype(from(WhiteNoise(), Start(0 => 0.0))) == typeof(0 => 0.0)
+
+      @show collectfrom(WhiteNoise(), Sample(Start(0 => 0.0)), 10)
+      @test collectfrom(WhiteNoise(), Sample(Start(0 => 0.0)), 10) isa Array{Pair{Int64,Float64},1}
+
+      @test eltype(from(Sampled(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
 
 
       @test eltype(Randn(10)) == Int
@@ -85,10 +113,17 @@ end
 
 
 @testset "control" begin
+      F = from(control(1:2:20, Evolve(collatz)), 1=>14)
+      ϕ = iterate(F)
+      @test (1 => 14, (1, 1 => 14)) == ϕ
+      ϕ = iterate(F, ϕ[2])
+      @test (3 => 22, (3, 3 => 22)) == ϕ
+      @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
-      @test (3 => 22, (3, 3 => 22)) == iterate(from(control(1:2:20, Evolve(collatz)), 1=>14))
-      @test collectfrom(control(1:2:20, Evolve(collatz)), (1=>14)) isa Array{Pair{Int64,Int64},1}
-
+      F = from(control(3:2:20, Evolve(collatz)), 1=>14)
+      ϕ = iterate(F)
+      @test (3 => 22, (3, 3 => 22)) == ϕ
+      @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
 end
 

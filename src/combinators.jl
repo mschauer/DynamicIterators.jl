@@ -1,4 +1,23 @@
 
+
+struct Bind{T,S} <: DynamicIterator
+    Y::S
+    P::T
+end
+
+function dyniterate(M::Bind, start::Start)
+    v, q = @returnnothing iterate(M.Y)
+    u, p = @returnnothing dyniterate(M.P, start, v)
+    u, (q, p)
+end
+
+function iterate(M::Bind, (q, p)::Tuple)
+    v, q = @returnnothing iterate(M.Y, q)
+    u, p = @returnnothing dyniterate(M.P, p, v)
+    u, (q, p)
+end
+
+
 """
 
     mix(f, P, Q)
@@ -20,11 +39,10 @@ struct Mix{F,T,S} <: DynamicIterator
     Q::S
 end
 
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dyniterate_(M, (value=u,))
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, v::Value) = dyniterate_(M, v)
-#dyniterate(M::Mix, v::Value) = dyniterate_(M, v)
+
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dub(evolve(M, u))
-dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (u,)::Value) = dub(evolve(M, u))
+dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Value) = dub(evolve(M, u.value))
+dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Start) = dub(evolve(M, u.value))
 evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (i, pq)::Pair) = i+1 => evolve(M, pq)
 
 function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
@@ -35,24 +53,24 @@ function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
     M.f(p, q)
 end
 
-function dyniterate(M::Mix, (value,)::Value)
+function dyniterate(M::Mix, (value,)::Start)
     x, y = value
-    ϕ = dyniterate(M.P, (value=x,))
+    ϕ = dyniterate(M.P, Start(x))
     ϕ === nothing && return nothing
     x, p = ϕ
-    ψ = dyniterate(M.Q, (value=y,))
+    ψ = dyniterate(M.Q, Start(y))
     ψ === nothing && return nothing
     y, q = ψ
     x, y = M.f(x, y)
     (x, y), (p, q)
 end
-function dyniterate(M::Mix, u, (value,)::Value=(value=u))
+function dyniterate(M::Mix, (value, u)::Value)
     p, q = u
     x, y = value
-    ϕ = dyniterate(M.P, p, (value=x,))
+    ϕ = dyniterate(M.P, Value(x, p))
     ϕ === nothing && return nothing
     x, p = ϕ
-    ψ = dyniterate(M.Q, q, (value=y,))
+    ψ = dyniterate(M.Q, Value(y, q))
     ψ === nothing && return nothing
     y, q = ψ
     x, y = M.f(x, y)
