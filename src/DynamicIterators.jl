@@ -39,36 +39,45 @@ end
 
 abstract type Message
 end
+abstract type Message1 <: Message # to elements
+end
+abstract type Message2 <: Message # to elements
+end
 
 struct Start{T} <: Message
     value::T
 end
+iterate(start::Start) = start.value, nothing
+iterate(start::Start, ::Nothing) = nothing
 
 struct Control{T} <: Message
     state::T
 end
+iterate(start::Control) = start.state, nothing
+iterate(start::Control, ::Nothing) = nothing
 
-struct Value{T,S} <: Message
+struct Value{T,S} <: Message2
     value::T
     state::S
 end
-struct Steps{T} <: Message
+
+struct Steps{T} <: Message2
     state::T
     n::Int
 end
-struct Sample{T,RNG} <: Message
+struct Sample{T,RNG} <: Message2
     state::T
     rng::RNG
 end
-struct NewKey{S,T} <: Message
+struct NewKey{S,T} <: Message2
     state::S
     value::T
 end
-struct Key{S,T} <: Message
+struct Key{S,T} <: Message2
     state::S
     value::T
 end
-struct NextKey{S,T} <: Message
+struct NextKey{S,T} <: Message2
     state::S
     value::T
 end
@@ -76,11 +85,14 @@ end
 
 Sample(x) = Sample(x, Random.GLOBAL_RNG)
 
+iterate(M::Message2) = getfield(M, 1), 1
+iterate(M::Message2, Any) = getfield(M, 2), nothing
+iterate(M::Message2, ::Nothing) = nothing
 
-iterate(M::Message) = getfield(M, 1), 1
-iterate(M::Message, n) = getfield(M, n + 1), n + 1
+iterate(M::Message1) = getfield(M, 1), nothing
+iterate(M::Message1, Any) = nothing
 
-export Message, Start, Control, Value, Steps, Sample,
+export Message, Message1, Message2, Start, Control, Value, Steps, Sample,
     NewKey, Key, NextKey
 
 function evolve

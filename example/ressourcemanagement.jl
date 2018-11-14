@@ -17,10 +17,9 @@ struct Postprocess{T,S} <: Message
     state::T
     signal::S
 end
-Base.iterate(M::Postprocess) = M.state, 1
-Base.iterate(M::Postprocess, Any) = M.signal, nothing
-Base.iterate(M::Postprocess, ::Nothing) = nothing
-
+Base.iterate(M::Message) = getfield(M, 1), 1
+Base.iterate(M::Message, Any) = getfield(M, 2), nothing
+Base.iterate(M::Message, ::Nothing) = nothing
 
 struct DRange{T}
     start::T
