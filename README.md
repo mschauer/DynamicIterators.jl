@@ -5,19 +5,34 @@ Iterators combine to a tree of iterators, but dynamic iterators combine to a net
 
 Dynamic iterators subtype `<:DynamicIterator`. They extend the iteration protocol and define
 ```
-    dyniterate(iter, state, (keyword1=setting1, keyword2=setting2,...))
+    dyniterate(iter, message(state))
 ```
-with the last argument a named tuple.
+where message wraps a state or other relevant information.
+For example the definition
+```
+struct Start{T} <: Message
+    value::T
+end
+dyniterate(iter, Start(value))
+```
+communicates that `iter` should start at `value` (if this is implemented).
+This is similar to `iterate(iter)` communicating that `iter` should start at a predefined
+value. In fact a fallback
+```
+dyniterate(iter, ::Nothing)
+```
+Some messages make the iterator accept a third argument.
 
-A preliminary list of supported keywords:
+A preliminary list of supported messages:
 
-Keyword      | Meaning
--------------|--------------------
-`value=x`    | continue to iterate from the state correspnding to iterate `x`
-`nextkey=x`  | advance an iterator over pairs of `key=>values` to `nextkey=>nextvalue`
-`until=x`    | advance the iterator until the itertate `x`
-`steps=n`    | advance the iterator `n` steps or possibly rewind if `n` negative
-`control=u`  | control term as in the Kalman filter
+Message (and third argument) | Meaning
+----------------------------|--------------------
+`Start(noting)`             | Start the iterator at its default
+`Start(x)`                  | start the iterate from the state corresponding to value `x`
+`Value(x)`                  | continue to iterate from the state corresponding to iterate `x`
+`NextKey(state), nextkey`   | advance an iterator over pairs of `key=>values` to `nextkey`
+`Steps(n)`                  | advance the iterator `n` steps or possibly rewind if `n` negative
+`Control(), control`        | control term as in the Kalman filter
 
 
 ## `Evolution`: Evolution-type dynamic iterators
@@ -43,7 +58,6 @@ evolve(iterator, x) -> y
 dub(x) = x === nothing ? nothing : (x,x)
 iterate(iterator::Evolution, x) = dub(evolve(iterator, x))
 ```
-
 which guarantees `value == state` and introduces a powerful set of combinators
 for such iterators.
 

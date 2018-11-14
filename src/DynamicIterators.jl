@@ -95,6 +95,7 @@ dedub(x) = x === nothing ? nothing : x[1]
 # when keywords are absent
 dyniterate(iter, state) = iterate(iter, state)
 dyniterate(iter, ::Nothing) = iterate(iter)
+dyniterate(iter, ::Start{Nothing}) = iterate(iter)
 
 macro returnnothing(exp)
     quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
