@@ -22,18 +22,22 @@ from(i, x) = From(i, x)
 collectfrom(it, x) = collect(from(it, x))
 collectfrom(it, x, n) = collect(take(from(it, x), n))
 
-#@propagate_inbounds iterate(i::From) = dyniterate(i.itr, nothing, (value=i.x,))
+@propagate_inbounds iterate(i::From{<:Any, <:Sample}) = dyniterate(i.itr, i.x)
 @propagate_inbounds iterate(i::From) = dyniterate(i.itr, Start(i.x))
 @propagate_inbounds iterate(i::From, u) = dyniterate(i.itr, u)
 @propagate_inbounds dyniterate(i::From, args...) = dyniterate(i.itr, args...)
 
 
+
+eltype(::Type{From{I,Start{T}}}) where {I<:DynamicIterator,T} = T
 eltype(::Type{From{I,T}}) where {I<:DynamicIterator,T} = T
-eltype(::Type{<:From{I}}) where {I} = eltype(I)
+eltype(::Type{From{I,<:Any}}) where {I} = eltype(I)
 
-IteratorEltype(::Type{<:From{<:DynamicIterator}}) = HasEltype()
+IteratorEltype(::Type{From{I,T}}) where {I<:DynamicIterator,T} = HasEltype()
+IteratorEltype(::Type{From{I,T}})  where {I<:DynamicIterator,T<:Message} = EltypeUnknown()
+IteratorEltype(::Type{From{I,T}}) where {I<:DynamicIterator,T<:Start} = HasEltype()
+
 IteratorEltype(::Type{<:From{I}}) where {I} = IteratorEltype(I)
-
 IteratorSize(::Type{<:From{I}}) where {I} = Iterators.rest_iteratorsize(IteratorSize(I))
 
 

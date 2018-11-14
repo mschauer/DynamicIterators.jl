@@ -1,12 +1,12 @@
 
-struct Sample2{T,S} <: Evolution
+struct Sampled{T,S} <: Evolution
     P::T
     rng::S
-    Sample2(P::T, rng=Random.GLOBAL_RNG) where {T} = new{T,typeof(rng)}(P, rng)
+    Sampled(P::T, rng=Random.GLOBAL_RNG) where {T} = new{T,typeof(rng)}(P, rng)
 end
-eltype(::Type{Sample2{T}}) where {T} = eltype(T)
+eltype(::Type{Sampled{T}}) where {T} = eltype(T)
 
-function evolve(X::Sample2, (t,x)::Pair, args...)
+function evolve(X::Sampled, (t,x)::Pair, args...)
     u = evolve(X.P, (t=>x), args...)
     u === nothing && return nothing
     t, D = u
@@ -18,7 +18,7 @@ struct Randn{T}
     x::T
 end
 eltype(::Type{Randn{T}}) where {T} = T
-Randn(D::Randn{T}) where {T}  = D
+Randn(D::Randn) = D
 #Randn(x::T) where {T} = Randn{T}(x)
 rand(D::Randn) = randn(typeof(D.x))
 rand(D::Randn{Array}) = randn(T, size(D.x))
@@ -29,13 +29,18 @@ rand(rng::AbstractRNG, D::Randn{Array{T}}) where {T} = randn(rng, T, size(D.x))
 struct WhiteNoise <: Evolution
 end
 evolve(::WhiteNoise, (t,x)::Pair{Int}) = (t+1) => Randn(x)
-evolve(::WhiteNoise, x, args...) = Randn(x)
-evolve(WN::WhiteNoise, (x,rng)::Sample) = rand(rng, evolve(WN, x))
-evolve(WN::WhiteNoise, ((t, x), rng)::Sample{<:Pair{Int}}) = (t+1) => rand(rng, evolve(WN, x))
+evolve(::WhiteNoise, x::Union{Randn, AbstractArray, Number}) where {T} = Randn(x)
 
-eltype(::Type{From{WhiteNoise,T}}) where {T} = T
-eltype(::Type{From{WhiteNoise, Sample{T,<:Any}}}) where {T} = T
-eltype(::Type{Iterators.Take{From{WhiteNoise, Sample{T,<:Any}}}}) where {T} = T
+
+#evolve(E::Evolution, (x,rng)::Sample{<:Start}) = evolve(E, Sample(x.value, rng))
+#evolve(E::Evolution, (x,rng)::Sample) = rand(rng, evolve(E, x))
+#evolve(E::Evolution, ((t, x), rng)::Sample{<:Pair{Int}}) = (t+1) => rand(rng, evolve(E, x))
+dyniterate(E::Evolution, (x,rng)::Sample{<:Start}) = dyniterate(E, Sample(x.value, rng))
+dyniterate(E::Evolution, u::Sample) = rand(u.rng, evolve(E, u.x)), u
+function dyniterate(E::Evolution, ((t, x), rng)::Sample{<:Pair{Int}})
+    y = rand(rng, evolve(E, x))
+    (t+1) => y, Sample(t + 1 => y, rng)
+end
 
 #abstract type MarkovIterator
 #end
@@ -88,9 +93,9 @@ function dyniterate(P::Link, (p, q))
     v, (p, q)
 end
 
-function dyniterate(S::Sample2{Link}, (p, q))
-    u, p = @returnnothing dyniterate(Sample2(S.P.X, S.rng), p)
-    v, q = @returnnothing dyniterate(Sample2(S.P.Y, S.rng), q, (control = u,))
+function dyniterate(S::Sampled{Link}, (p, q))
+    u, p = @returnnothing dyniterate(Sampled(S.P.X, S.rng), p)
+    v, q = @returnnothing dyniterate(Sampled(S.P.Y, S.rng), q, (control = u,))
     v, (p, q)
 end
 =#

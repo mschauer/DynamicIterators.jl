@@ -3,7 +3,7 @@ using Trajectories
 
 export collectfrom, DynamicIterator
 
-export Key, Control2, NextKey, Value2 # keywords
+export Key, NextKey # keywords
 
 export Evolution, evolve, timelift_evolve, from # evolution
 export Evolve, TimeLift, mix, synchronize, mixture # combinators
@@ -14,14 +14,14 @@ export control, timed # control
 
 # random
 export WhiteNoise, Randn, InhomogeneousPoisson,
-    MetropolisHastings #,Sample2
+    MetropolisHastings #,Sampled
 
 using Random, Base.Iterators
 
 using Base.Iterators
 using Base: SizeUnknown, HasEltype
 import Base: iterate, IteratorSize, @propagate_inbounds, IsInfinite, eltype, IteratorEltype,
-    rand
+    rand, EltypeUnknown, HasEltype
 
 
 # keyword arguments:
@@ -100,19 +100,8 @@ macro returnnothing(exp)
     quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
 end
 
-# todo: remove
-#=
-iterate(P::DynamicIterator, x) = dub(evolve(P, x))
-dyniterate(P::DynamicIterator, state, (value,)::NamedTuple{(:value,)}=(value=state,)) = dub(evolve(P, value))
-dyniterate(P::DynamicIterator, (value,)::NamedTuple{(:value,)}) = dub(evolve(P, value))
-=#
-
 IteratorSize(::DynamicIterator) = SizeUnknown()
 
-
-macro NT(args...)
-    :(NamedTuple{($(args)...,)})
-end
 
 
 include("evolution.jl")

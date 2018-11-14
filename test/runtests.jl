@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate, dyniterate, Sample2
+using DynamicIterators: dub, _lastiterate, dyniterate, Sampled
 using Test
 using Trajectories
 
@@ -83,10 +83,17 @@ end
 @testset "random" begin
       @test all([Randn(0.0)] .== collectfrom(WhiteNoise(), Randn(0.0), 9))
 
-      @test collectfrom(Sample2(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
-      @test_broken collectfrom(WhiteNoise(), Sample(0 => 0.0), 10) isa Array{Pair{Int64,Float64},1}
+      @test collectfrom(Sampled(WhiteNoise()), (0 => 0.1), 10) isa Array{Pair{Int64,Float64},1}
 
-      @test eltype(from(Sample2(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
+      @test Base.IteratorEltype(from(WhiteNoise(), Sample(0 => 0.0))) == Base.EltypeUnknown()
+
+      @test Base.IteratorEltype(from(WhiteNoise(), Start(0 => DynamicIterators.Randn(0.0)))) == Base.HasEltype()
+      @test eltype(from(WhiteNoise(), Start(0 => 0.0))) == typeof(0 => 0.0)
+
+      @show collectfrom(WhiteNoise(), Sample(Start(0 => 0.0)), 10)
+      @test collectfrom(WhiteNoise(), Sample(Start(0 => 0.0)), 10) isa Array{Pair{Int64,Float64},1}
+
+      @test eltype(from(Sampled(WhiteNoise()), (0 => 0.1))) == Pair{Int64,Float64}
 
 
       @test eltype(Randn(10)) == Int

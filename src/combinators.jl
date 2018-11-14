@@ -22,12 +22,9 @@ struct Mix{F,T,S} <: DynamicIterator
     Q::S
 end
 
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dyniterate_(M, (value=u,))
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, v::Value2) = dyniterate_(M, v)
-#dyniterate(M::Mix, v::Value2) = dyniterate_(M, v)
+
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u) = dub(evolve(M, u))
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Value) = dub(evolve(M, u.value))
-#dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, ::Nothing, (u,)::Value2) = dub(evolve(M, u))
 dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Start) = dub(evolve(M, u.value))
 evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (i, pq)::Pair) = i+1 => evolve(M, pq)
 
