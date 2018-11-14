@@ -1,7 +1,7 @@
 module DynamicIterators
 using Trajectories
 
-export collectfrom, DynamicIterator
+export collectfrom, DynamicIterator, dyniterate
 
 export Key, NextKey # keywords
 
@@ -108,6 +108,8 @@ dedub(x) = x === nothing ? nothing : x[1]
 dyniterate(iter, state) = iteratefallback(iter, state)
 iteratefallback(iter, state) = iterate(iter, state)
 iteratefallback(iter, ::Nothing) = iterate(iter)
+iteratefallback(iter::DynamicIterator, state) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
+iteratefallback(iter::DynamicIterator, ::Nothing) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
 #dyniterate(iter::DynamicIterator, ::Nothing) = error("No starting point known for $iter. Use `from`.")
 dyniterate(iter, ::Start{Nothing}) = iterate(iter)
 

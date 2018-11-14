@@ -117,12 +117,12 @@ lastiterate(P, u, stop=u->false) = _lastiterate(P, Start(u), stop)
 lastiterate(P, u::Message, stop=u->false) = _lastiterate(P, u, stop)
 
 function _lastiterate(P, u, stop=u->false)
-    if !stop(u)
+    if true
         ϕ = dyniterate(P, u)
         ϕ === nothing && return u
         u, state = ϕ
         while !stop(u)
-            ϕ = dyniterate(P, Value(u, state))
+            ϕ = dyniterate(P, state)
             ϕ === nothing && return u
             u, state = ϕ
         end

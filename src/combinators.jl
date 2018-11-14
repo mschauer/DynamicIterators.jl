@@ -12,7 +12,7 @@ function dyniterate(M::Bind, start::T) where {T<:Union{Start,Nothing}}
     u, (q, p)
 end
 
-function iterate(M::Bind, (q, p)::Tuple)
+function dyniterate(M::Bind, (q, p)::Tuple)
     v, q = @returnnothing iterate(M.Y, q)
     u, p = @returnnothing dyniterate(M.P, p, v)
     u, (q, p)
