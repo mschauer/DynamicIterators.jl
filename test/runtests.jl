@@ -3,6 +3,10 @@ using DynamicIterators: dub, _lastiterate, dyniterate, Sample2
 using Test
 using Trajectories
 
+@testset "Examples" begin
+      include("../example/metropolishastings.jl")
+end
+
 c = collect
 cf = collectfrom
 

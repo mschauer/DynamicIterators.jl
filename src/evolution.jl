@@ -19,12 +19,6 @@ end
 const GEvolution = Union{Evolution, UnitRange, StepRange}
 const GDynamicIterator = Union{DynamicIterator, UnitRange, StepRange}
 
-"""
-    statefrom(E, x)
-
-Create state for E following `x`.
-"""
-statefrom(E, x) = dyniterate(i.itr, (value=i.x,))
 evolve(r::UnitRange, i::Integer) = i < last(r) ?  i + 1 : nothing
 evolve(r::UnitRange, ::Nothing) = r.start
 function evolve(r::StepRange, i) # Fixme
