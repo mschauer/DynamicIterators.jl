@@ -13,7 +13,7 @@ or
 ```
 where message wraps a state or other relevant information.
 For example the definition
-```
+```julia
 struct Start{T} <: Message
     value::T
 end
@@ -22,11 +22,12 @@ dyniterate(iter, Start(value))
 communicates that `iter` should start at `value` (if this is implemented).
 This is similar to `iterate(iter)` communicating that `iter` should start at a predefined
 value. In fact a fallback
+```julia
+dyniterate(iter, ::Nothing) = iterate(iter)
 ```
-dyniterate(iter, ::Nothing)
-```
-Some messages make the iterator accept a third argument.
+is in place.
 
+Some messages make the iterator accept a third argument.
 A simple example using `bind` to bind an iterator to an iterator using the three-argument form of `dyniterate`:
 ```julia
 using DynamicIterators
@@ -46,6 +47,8 @@ end
 @show collect(bind(1:5, Summed()))
 ```
 
+A more in-depth example showing the power of the approach is https://github.com/mschauer/DynamicIterators.jl/blob/master/example/ressourcemanagement.jl, showing how to extend the iterator protocol 
+to allow resource management (e.g. closing of files of child iterators) at the end of iteration of the parent.
 
 A preliminary list of supported messages:
 
@@ -80,7 +83,7 @@ transparent way. This allows iterators not only to depend on each other, but to
 
 `DynamicIterators.jl` embeds a constrained iterator protocol for
 iterators subtyping `<:Evolution`, which define
-```
+```julia
 evolve(iterator, x) -> y
 dub(x) = x === nothing ? nothing : (x,x)
 iterate(iterator::Evolution, x) = dub(evolve(iterator, x))
@@ -93,7 +96,7 @@ for such iterators.
 As a simple example take a Metropolis-Hastings chain
 
 It can be described as a simple Evolution.
-```
+```julia
 function evolve(MH::MetropolisHastings, (t,x)::Pair)
     P = MH.P
     Q = MH.proposal(x)
@@ -108,7 +111,7 @@ end
 
 The following example shows that the `Mixture` iterator combinator can be used to combine two Metropolis-Hastings chains into a component wise MetropolisHastings sampler:
 
-```
+```julia
 using DynamicIterators
 using Distributions
 
@@ -137,7 +140,7 @@ X = values(trace(MH, 1=>(1, [0.0, 0.0]), endtime(2000)))
 ## Lifting time
 
 Letting
-```
+```julia
 evolve(E, (i, x)::Pair) = i + 1 => evolve(E, x)
 ```
 constitutes a "lifting" of discrete time. This corresponds to enumerating the iterates of an evolution `x = f(x)` as `(1 => x1, 2 => x2, ...)`.
