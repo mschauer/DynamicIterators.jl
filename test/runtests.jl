@@ -1,7 +1,9 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate, dyniterate, Sampled
+using DynamicIterators: dub, _lastiterate, Sampled, State
 using Test
 using Trajectories
+import DynamicIterators.dyniterate
+
 
 @testset "Examples" begin
       include("../example/metropolishastings.jl")
@@ -128,8 +130,20 @@ end
       @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
 end
+struct Squares <: DynamicIterator
+end
+dyniterate(S::Squares, (state,)::State) = (state*state, State(state+1))
+dyniterate(S::Squares, ::Nothing) = (1, State(2))
+
+@testset "TimeLift" begin
 
 
+      U = TimeLift(Squares())
+
+      @test collect(from(bind(4:2:8, U), NextKeys(State(1))))== [ 4 => 1
+                                                                   6 => 9
+                                                                   8 => 25]
+end
 
 @testset "Synchronize" begin
       P = InhomogeneousPoisson(x -> sin(x) + 1, 2.0)

@@ -6,7 +6,7 @@ export collectfrom, DynamicIterator, dyniterate
 export Key, NextKey # keywords
 
 export Evolution, evolve, timelift_evolve, from # evolution
-export Bind, bind, Evolve, TimeLift, mix, synchronize, mixture # combinators
+export Bind, bind, bindafter, Evolve, TimeLift, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 
@@ -39,51 +39,21 @@ end
 
 abstract type Message
 end
-abstract type Message1 <: Message # to elements
+
+macro returnnothing(exp)
+    quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
 end
-abstract type Message2 <: Message # to elements
+function evolve
+end
+function dyniterate
 end
 
-struct Start{T} <: Message1
-    value::T
-end
-iterate(start::Start) = start.value, nothing
-iterate(start::Start, ::Nothing) = nothing
-
-struct Control{T} <: Message1
-    state::T
-end
-iterate(start::Control) = start.state, nothing
-iterate(start::Control, ::Nothing) = nothing
-
-struct Value{T,S} <: Message2
-    value::T
-    state::S
-end
-
-struct Steps{T} <: Message2
-    state::T
-    n::Int
-end
-struct Sample{T,RNG} <: Message2
-    state::T
-    rng::RNG
-end
-struct NewKey{S,T} <: Message2
-    state::S
-    value::T
-end
-struct Key{S,T} <: Message2
-    state::S
-    value::T
-end
-struct NextKey{S,T} <: Message2
-    state::S
-    value::T
-end
+include("messages.jl")
 
 
 Sample(x) = Sample(x, Random.GLOBAL_RNG)
+
+Base.getindex(M::Message1) = getfield(M, 1)
 
 iterate(M::Message2) = getfield(M, 1), 1
 iterate(M::Message2, Any) = getfield(M, 2), nothing
@@ -93,10 +63,9 @@ iterate(M::Message1) = getfield(M, 1), nothing
 iterate(M::Message1, Any) = nothing
 
 export Message, Message1, Message2, Start, Control, Value, Steps, Sample,
-    NewKey, Key, NextKey
+    NewKey, Key, NextKey, NextKeys, BindOnce
 
-function evolve
-end
+
 
 dub(x) = x === nothing ? nothing : (x, x)
 dedub(x) = x === nothing ? nothing : x[1]
@@ -105,20 +74,17 @@ dubwith(x, c) = x === nothing ? nothing : (x, c(x))
 
 # keyword functions shouldn't shadow non-keyword functions
 # when keywords are absent
-#dyniterate(iter, state) = iteratefallback(iter, state)
 iteratefallback(iter, state) = iterate(iter, state)
 iteratefallback(iter, ::Nothing) = iterate(iter)
 iteratefallback(iter::DynamicIterator, state) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
 iteratefallback(iter::DynamicIterator, ::Nothing) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
-#dyniterate(iter::DynamicIterator, ::Nothing) = error("No starting point known for $iter. Use `from`.")
-dyniterate(iter, ::Start{Nothing}) = iterate(iter)
+
+dyniterate(iter, ::Start{Nothing}) = iterate(iter) # not sure about this one
+dyniterate(iter, ::Nothing) = iterate(iter) # not sure about this one
 
 iterate(iter::DynamicIterator) = dyniterate(iter, nothing)
 iterate(iter::DynamicIterator, state) = dyniterate(iter, state)
 
-macro returnnothing(exp)
-    quote let ϕ = $(esc(exp)); if ϕ === nothing; return nothing; end; ϕ end end
-end
 
 IteratorSize(::DynamicIterator) = SizeUnknown()
 

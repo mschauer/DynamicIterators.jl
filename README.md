@@ -47,18 +47,19 @@ end
 @show collect(bind(1:5, Summed()))
 ```
 
-A more in-depth example showing the power of the approach is https://github.com/mschauer/DynamicIterators.jl/blob/master/example/ressourcemanagement.jl, showing how to extend the iterator protocol 
+A more in-depth example showing the power of the approach is https://github.com/mschauer/DynamicIterators.jl/blob/master/example/ressourcemanagement.jl, showing how to extend the iterator protocol
 to allow resource management (e.g. closing of files of child iterators) at the end of iteration of the parent.
 
 A preliminary list of supported messages:
 
 Message (and third argument) | Meaning
 ----------------------------|--------------------
+`state` or `State(state)`   | ordinary iteration
 `Start(noting)`             | start the iterator at its default
 `Start(x)`                  | start the iterate from the state corresponding to value `x`
-`Value(x)`                  | continue to iterate from the state corresponding to iterate `x`
+`Value(x, state)`           | continue to iterate from the state corresponding to iterate `x`
 `NextKey(state), nextkey`   | advance an iterator over pairs of `key=>values` to `nextkey`
-`Steps(n)`                  | advance the iterator `n` steps or possibly rewind if `n` negative
+`Steps(state,n)`                  | advance the iterator `n` steps or possibly rewind if `n` negative
 `Control(state), control`   | control term as in the Kalman filter⋆
 `Sample(state[,rng])`       | sample from iterates⋆
 

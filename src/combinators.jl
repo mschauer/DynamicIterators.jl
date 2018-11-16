@@ -6,16 +6,43 @@ struct Bind{T,S} <: DynamicIterator
 end
 bind(Y,P::DynamicIterator) = Bind(Y,P)
 
-function dyniterate(M::Bind, start::T) where {T<:Union{Start,Nothing}}
-    v, q = @returnnothing iterate(M.Y)
+function dyniterate(M::Bind, start::Start)
+    v, q = @returnnothing dyniterate(M.Y, nothing)
     u, p = @returnnothing dyniterate(M.P, start, v)
     u, (q, p)
 end
-
+function dyniterate(M::Bind, ::Nothing)
+    v, q = @returnnothing dyniterate(M.Y, nothing)
+    u, p = @returnnothing dyniterate(M.P, nothing, v)
+    u, (q, p)
+end
 function dyniterate(M::Bind, (q, p)::Tuple)
     v, q = @returnnothing iterate(M.Y, q)
     u, p = @returnnothing dyniterate(M.P, p, v)
     u, (q, p)
+end
+
+
+struct BindAfter{T,S} <: DynamicIterator
+    Y::S
+    P::T
+end
+bindafter(Y,P::DynamicIterator) = BindAfter(Y,P)
+
+function dyniterate(M::BindAfter, start::Start)
+    v, q = @returnnothing dyniterate(M.Y, nothing)
+    u, p = @returnnothing dyniterate(M.P, start)
+    u, (v, q, p)
+end
+function dyniterate(M::BindAfter, ::Nothing)
+    v, q = @returnnothing dyniterate(M.Y, nothing)
+    u, p = @returnnothing dyniterate(M.P, nothing)
+    u, (q, p)
+end
+function dyniterate(M::BindAfter, (v, q, p)::Tuple)
+    w, q = @returnnothing iterate(M.Y, q)
+    u, p = @returnnothing dyniterate(M.P, p, v)
+    u, (w, q, p)
 end
 
 

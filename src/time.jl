@@ -8,20 +8,30 @@ function dyniterate(TL::TimeLift, (i, state)::Pair)
     i + 1 => x, (i + 1 => state)
 end
 
+
+function dyniterate(TL::TimeLift, (state, j)::NextKey)
+    x, state = @returnnothing dyniterate(TL.iter, state)
+    j => x, (j => state)
+end
 function dyniterate(TL::TimeLift, ((i, state), j)::NextKey{<:Pair})
-    i == j && return i => state
     x, state = @returnnothing dyniterate(TL.iter, Steps(state, j-i))
     j => x, (j => state)
 end
+function dyniterate(TL::TimeLift, (state,)::NextKeys{<:Pair}, key)
+    u, state = @returnnothing dyniterate(TL, NextKey(state, key))
+    u, NextKeys(state)
+end
+function dyniterate(TL::TimeLift, (nk,)::Start{<:NextKeys}, key)
+    ϕ = dyniterate(TL, NextKey(nk[], key))
+    u, state = @returnnothing ϕ
+    u, NextKeys(state)
+end
+
 function dyniterate(TL::TimeLift, ((i,state), j)::NewKey{<:Pair})
     x, state = @returnnothing dyniterate(TL.iter, state)
     j => x, (j => state)
 end
-function dyniterate(TL::TimeLift, ::Nothing, (i,)::Key)
-    i += 1
-    x, state = @returnnothing dyniterate(TL.iter)
-    i => x, (i => state)
-end
+
 
 """
     dyniterate(iter, state, (steps,)::Steps)
