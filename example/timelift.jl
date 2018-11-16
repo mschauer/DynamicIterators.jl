@@ -1,6 +1,6 @@
 using DynamicIterators
 
-struct Squares <: DynamicIterator
+struct Squares
 end
 
 U = TimeLift(Squares())
