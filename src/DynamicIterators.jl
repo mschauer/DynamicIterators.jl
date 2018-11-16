@@ -78,9 +78,7 @@ iteratefallback(iter, state) = iterate(iter, state)
 iteratefallback(iter, ::Nothing) = iterate(iter)
 iteratefallback(iter::DynamicIterator, state) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
 iteratefallback(iter::DynamicIterator, ::Nothing) = throw(ArgumentError("Trying to use `iteration` fallback for DynamicIterator"))
-
-dyniterate(iter, ::Start{Nothing}) = iterate(iter) # not sure about this one
-dyniterate(iter, ::Nothing) = iterate(iter) # not sure about this one
+dyniterate(iter, state) = iteratefallback(iter, state)
 
 iterate(iter::DynamicIterator) = dyniterate(iter, nothing)
 iterate(iter::DynamicIterator, state) = dyniterate(iter, state)
