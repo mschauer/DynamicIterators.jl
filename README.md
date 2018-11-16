@@ -58,10 +58,12 @@ Message (and third argument) | Meaning
 `Start(noting)`             | start the iterator at its default
 `Start(x)`                  | start the iterate from the state corresponding to value `x`
 `Value(x, state)`           | continue to iterate from the state corresponding to iterate `x`
-`NextKey(state), nextkey`   | advance an iterator over pairs of `key=>values` to `nextkey`
-`Steps(state,n)`                  | advance the iterator `n` steps or possibly rewind if `n` negative
-`Control(state), control`   | control term as in the Kalman filter⋆
+`NextKey(state, nextkey)`   | advance an iterator over pairs of `key=>values` to `nextkey`
+`Steps(state, n)`           | advance the iterator `n` steps or possibly rewind if `n` negative
+`Control(state), control`   | control term as in the Kalman filter provided as third argument to dyniterate⋆
 `Sample(state[,rng])`       | sample from iterates⋆
+`NextKeys(state), key`      | advance iterator to the keys provided as third argument to dyniterate⋆
+
 
 ⋆persistent messages: `dyniterate` returns a state again wrapped by the message
 

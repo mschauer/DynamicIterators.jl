@@ -17,7 +17,7 @@ function dyniterate(TL::TimeLift, ((i, state), j)::NextKey{<:Pair})
     x, state = @returnnothing dyniterate(TL.iter, Steps(state, j-i))
     j => x, (j => state)
 end
-function dyniterate(TL::TimeLift, (state,)::NextKeys{<:Pair}, key)
+function dyniterate(TL::TimeLift, (state,)::NextKeys, key)
     u, state = @returnnothing dyniterate(TL, NextKey(state, key))
     u, NextKeys(state)
 end

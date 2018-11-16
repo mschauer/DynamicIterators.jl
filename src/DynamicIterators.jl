@@ -6,7 +6,7 @@ export collectfrom, DynamicIterator, dyniterate
 export Key, NextKey # keywords
 
 export Evolution, evolve, timelift_evolve, from # evolution
-export Bind, bind, bindafter, Evolve, TimeLift, mix, synchronize, mixture # combinators
+export attach, Bind, bind, bindafter, Evolve, TimeLift, mix, synchronize, mixture # combinators
 
 export trace, endtime, lastiterate # trajectories
 

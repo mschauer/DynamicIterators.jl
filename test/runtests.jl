@@ -1,5 +1,5 @@
 using DynamicIterators
-using DynamicIterators: dub, _lastiterate, Sampled, State
+using DynamicIterators: dub, _lastiterate, Sampled, State, Controlled
 using Test
 using Trajectories
 import DynamicIterators.dyniterate
@@ -117,14 +117,14 @@ end
 
 
 @testset "control" begin
-      F = from(control(1:2:20, Evolve(collatz)), 1=>14)
+      F = from(Controlled(1:2:20, Evolve(collatz)), 1=>14)
       ϕ = iterate(F)
       @test (1 => 14, (1, Control(1 => 14))) == ϕ
       ϕ = iterate(F, ϕ[2])
       @test (3 => 22, (3, Control(3 => 22))) == ϕ
       @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}
 
-      F = from(control(3:2:20, Evolve(collatz)), 1=>14)
+      F = from(Controlled(3:2:20, Evolve(collatz)), 1=>14)
       ϕ = iterate(F)
       @test (3 => 22, (3, Control(3 => 22))) == ϕ
       @test collectfrom(F, 1=>14) isa Array{Pair{Int64,Int64},1}

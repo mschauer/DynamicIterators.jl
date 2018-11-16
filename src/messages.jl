@@ -71,3 +71,4 @@ end
 struct NextKeys{S} <: Message1
     state::S
 end
+NextKeys() = NextKeys(nothing)

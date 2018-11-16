@@ -1,10 +1,11 @@
-using DynamicIterators
-
 struct Squares
 end
-
-U = TimeLift(Squares())
 Base.iterate(S::Squares, state=1) = (state*state, state+1)
 
-
-collect(from(bind(4:2:8, U), NextKeys(nothing)))
+using DynamicIterators
+# Assign iterate number as key
+T = TimeLift(Squares())
+# Create NextKey control slot
+C = attach(NextKeys, T)
+# Bind iterator 4:2:8 to the control slot and collect
+collect(bind(4:2:8, C))
