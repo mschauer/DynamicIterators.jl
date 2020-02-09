@@ -1,0 +1,10 @@
+name = "DynamicIterators"
+uuid = "6c76993d-992e-5bf1-9e63-34920a5a5a38"
+repo = "https://github.com/mschauer/DynamicIterators.jl.git"
+version = "0.2.1"
+[deps]
+Trajectories = "2c80a279-213e-54d7-a557-e9a14725db56"
+
+[compat]
+julia = "1"
+Trajectories = "0.1, 0.2"
