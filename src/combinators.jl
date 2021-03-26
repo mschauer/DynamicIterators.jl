@@ -68,20 +68,16 @@ dyniterate(M::Mix{<:Any, <:GEvolution, <:GEvolution}, u::Start) = dub(evolve(M, 
 evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (i, pq)::Pair) = i+1 => evolve(M, pq)
 
 function evolve(M::Mix{<:Any, <:GEvolution, <:GEvolution}, (p, q)::Tuple)
-    p = evolve(M.P, p)
-    p === nothing && return nothing
-    q = evolve(M.Q, q)
-    q === nothing && return nothing
+    p = @returnnothing evolve(M.P, p)
+    q = @returnnothing evolve(M.Q, q)
     M.f(p, q)
 end
 
 function dyniterate(M::Mix, (value,)::Start)
     x, y = value
-    ϕ = dyniterate(M.P, Start(x))
-    ϕ === nothing && return nothing
+    ϕ = @returnnothing dyniterate(M.P, Start(x))
     x, p = ϕ
-    ψ = dyniterate(M.Q, Start(y))
-    ψ === nothing && return nothing
+    ψ = @returnnothing dyniterate(M.Q, Start(y))
     y, q = ψ
     x, y = M.f(x, y)
     (x, y), (p, q)
@@ -89,11 +85,9 @@ end
 function dyniterate(M::Mix, (value, u)::Value)
     p, q = u
     x, y = value
-    ϕ = dyniterate(M.P, Value(x, p))
-    ϕ === nothing && return nothing
+    ϕ = @returnnothing dyniterate(M.P, Value(x, p))
     x, p = ϕ
-    ψ = dyniterate(M.Q, Value(y, q))
-    ψ === nothing && return nothing
+    ψ = @returnnothing dyniterate(M.Q, Value(y, q))
     y, q = ψ
     x, y = M.f(x, y)
     (x, y), (p, q)
