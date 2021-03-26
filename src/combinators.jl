@@ -57,9 +57,23 @@ to their states:
 
 ## Example
 ```
-collectfrom(Mix((x,y) -> (x+y, y), 1:0, 1:100), (1,1)))
-# last value 100*101/2 + 100
+julia> collectfrom(mix((x,y) -> (x+y, y), 1:10, 1:10), (1,1))
+3-element Vector{Tuple{Int64, Int64}}:
+ (4, 2)
+ (8, 3)
+ (13, 4)
 ```
+
+Each step here corresponds to a hidden step of the "zipped" iterators,
+followed by application of `f` before returning. In this case the evolution is
+
+(1,1) -> (2,2) -> (4,2)
+(4,2) -> (5,3) -> (8,3)
+(8,3) -> (9,4) -> (13,4)
+(13,4) -> nothing
+
+This `nothing` causes `mix` to return `nothing` as well, which in turn stops the
+`collectfrom`.
 """
 struct Mix{F,T,S} <: DynamicIterator
     f::F
