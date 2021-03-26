@@ -13,6 +13,17 @@ and possibly
 ```
 
 They guarantee `HasEltype()` and `eltype(iter) == T`.
+
+## Subtypes:
+
+Mixture
+Synchronize
+Evolve
+InhomogeneousPoisson
+MetropolisHastings
+Sampled
+WhiteNoise
+
 """
 abstract type Evolution <: DynamicIterator
 end
