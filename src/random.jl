@@ -1,4 +1,7 @@
 
+"""
+    Sampled <: Evolution
+"""
 struct Sampled{T,S} <: Evolution
     P::T
     rng::S
