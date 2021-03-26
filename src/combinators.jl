@@ -47,33 +47,13 @@ end
 
 
 """
+    struct Mix{F,T,S} <: DynamicIterator
+        f::F
+        P::T
+        Q::S
+    end
 
-    mix(f, P, Q)
-
-Mix two dynamic iterators by applying the mixing function `f`
-to their states:
-
-    x, y = f(x, y)
-
-## Example
-```
-julia> collectfrom(mix((x,y) -> (x+y, y), 1:10, 1:10), (1,1))
-3-element Vector{Tuple{Int64, Int64}}:
- (4, 2)
- (8, 3)
- (13, 4)
-```
-
-Each step here corresponds to a hidden step of the "zipped" iterators,
-followed by application of `f` before returning. In this case the evolution is
-
-(1,1) -> (2,2) -> (4,2)
-(4,2) -> (5,3) -> (8,3)
-(8,3) -> (9,4) -> (13,4)
-(13,4) -> nothing
-
-This `nothing` causes `mix` to return `nothing` as well, which in turn stops the
-`collectfrom`.
+see `mix`
 """
 struct Mix{F,T,S} <: DynamicIterator
     f::F
@@ -119,7 +99,35 @@ function dyniterate(M::Mix, (value, u)::Value)
     (x, y), (p, q)
 end
 
+"""
 
+    mix(f, P, Q)
+
+Mix two dynamic iterators by applying the mixing function `f`
+to their states:
+
+    x, y = f(x, y)
+
+## Example
+```
+julia> collectfrom(mix((x,y) -> (x+y, y), 1:10, 1:10), (1,1))
+3-element Vector{Tuple{Int64, Int64}}:
+ (4, 2)
+ (8, 3)
+ (13, 4)
+```
+
+Each step here corresponds to a hidden step of the "zipped" iterators,
+followed by application of `f` before returning. In this case the evolution is
+
+(1,1) -> (2,2) -> (4,2)
+(4,2) -> (5,3) -> (8,3)
+(8,3) -> (9,4) -> (13,4)
+(13,4) -> nothing
+
+This `nothing` causes `mix` to return `nothing` as well, which in turn stops the
+`collectfrom`.
+"""
 mix(f, P, Q) = Mix(f, P, Q)
 
 
