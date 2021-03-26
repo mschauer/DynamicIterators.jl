@@ -1,7 +1,7 @@
 
 
 """
-    Evolution
+    abstract type Evolution <: DynamicIterator
 
 Evolutions define
 ```
