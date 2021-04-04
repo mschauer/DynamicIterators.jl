@@ -1,7 +1,7 @@
 name = "DynamicIterators"
 uuid = "6c76993d-992e-5bf1-9e63-34920a5a5a38"
 repo = "https://github.com/mschauer/DynamicIterators.jl.git"
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
