@@ -96,6 +96,31 @@ function trace(P, u::Pair, stop = x->false; register = x->true)
     end
     error("registered nothing")
 end
+
+function trace(P, ::Nothing, stop = x->false; register = x->true)
+    while true
+        ϕ = dyniterate(P, nothing)
+        ϕ === nothing && break
+        u, state = ϕ
+        if register(u)
+            X = trajectory((u,))
+            return DynamicIterators.trace_(P, X, u, state, stop, register)
+        else
+            while !stop(u)
+                ϕ = dyniterate(P, state)
+                ϕ === nothing && break
+                u, state = ϕ
+                if register(u)
+                    X = trajectory((u,))
+                    return trace_(P, X, u, state, stop, register)
+                end
+            end
+        end
+    end
+    error("registered nothing")
+end
+
+
 function trace_(P, X::Trajectory, u, state, stop, register)
     while !stop(u)
         ϕ = dyniterate(P, state)

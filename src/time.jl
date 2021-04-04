@@ -3,6 +3,8 @@ struct TimeLift{T} <: DynamicIterator
     iter::T
 end
 
+dyniterate(iter::TimeLift, ::Nothing) = dyniterate(iter, 0=>nothing) 
+
 function dyniterate(TL::TimeLift, (i, state)::Pair)
     x, state = @returnnothing dyniterate(TL.iter, state)
     i + 1 => x, (i + 1 => state)

@@ -143,6 +143,8 @@ dyniterate(S::Squares, ::Nothing) = (1, State(2))
       @test collect(from(bind(4:2:8, U), NextKeys(State(1))))== [ 4 => 1
                                                                    6 => 9
                                                                    8 => 25]
+      @test trace(U, nothing, u -> u[1] > 3) == Trajectory{Vector{Int64}, Vector{Int64}}([1, 2, 3, 4], [1, 4, 9, 16])
+                                                            
 end
 
 @testset "Synchronize" begin
