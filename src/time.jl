@@ -62,3 +62,5 @@ function dyniterate(iter::GEvolution, (x,n)::Steps)
     end
     dub(x)
 end
+
+Base.IteratorSize(tl::TimeLift) = Base.IteratorSize(tl.iter)
