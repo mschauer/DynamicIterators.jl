@@ -1,0 +1,81 @@
+# Example by Chad Scherrer
+using DynamicIterators
+using MeasureTheory
+using ConcreteStructs
+
+abstract type Step end
+
+struct Sample <: Step end
+
+sample = Sample()
+
+struct Observe{T} <: Step
+    x::T
+end
+
+observe = Observe
+
+struct Query <: Step end
+
+query = Query()
+
+using MeasureTheory: Kernel
+
+@concrete terse struct MarkovChain <: DynamicIterator
+    μ
+    κ
+end
+
+function DynamicIterators.dyniterate(mc::MarkovChain, ::Nothing, ::Sample)
+    x = rand(mc.μ)
+    μ = mc.κ(x)
+    ℓ = 0.0
+    (x, (ℓ, μ))
+end
+
+function DynamicIterators.dyniterate(mc::MarkovChain, ::Nothing, obs::Observe)
+    x = obs.x
+    ℓ = logdensity(mc.μ, x)
+    μ = mc.κ(x)
+    (x, (ℓ, μ))
+end
+
+function DynamicIterators.dyniterate(mc::MarkovChain, (ℓ, μ), ::Sample)
+    x = rand(mc.μ)
+    μ = mc.κ(x)
+    (x, (ℓ, μ))
+end
+
+function DynamicIterators.dyniterate(mc::MarkovChain, (ℓ, μ), obs::Observe)
+    x = obs.x
+    ℓ = logdensity(μ, x)
+    μ = mc.κ(x)
+    (x, (ℓ, μ))
+end
+
+function DynamicIterators.dyniterate(mc::MarkovChain, (ℓ,μ), ::Query)
+    ((ℓ, μ), (ℓ, μ))
+end
+
+-----------------
+
+# julia> s = [sample, observe(0.2), sample, sample, observe(0.9), query]
+# 6-element Vector{Step}:
+#  Sample()
+#  Observe{Float64}(0.2)
+#  Sample()
+#  Sample()
+#  Observe{Float64}(0.9)
+#  Query()
+
+# julia> mc = MarkovChain(Normal(), kernel((μ=identity,), Normal))
+# MarkovChain{}(Normal(), Kernel{Normal, NamedTuple{(:μ,), Tuple{typeof(identity)}}}((μ = identity,)))
+
+# julia> collect(bind(s,mc))
+# 6-element Vector{Any}:
+#  0.9571775305570035
+#  0.2
+#  1.3230009968482315
+#  0.6856746440720389
+#  0.9
+#   (-0.022967679096823602, Normal(μ = 0.9,))
