@@ -1,7 +1,7 @@
 
 
 """
-    Evolution
+    abstract type Evolution <: DynamicIterator
 
 Evolutions define
 ```
@@ -13,6 +13,17 @@ and possibly
 ```
 
 They guarantee `HasEltype()` and `eltype(iter) == T`.
+
+## Subtypes:
+
+Mixture
+Synchronize
+Evolve
+InhomogeneousPoisson
+MetropolisHastings
+Sampled
+WhiteNoise
+
 """
 abstract type Evolution <: DynamicIterator
 end
@@ -78,8 +89,7 @@ timelift_evolve(E, (i,x)::Pair) = i+1 => evolve(E, x)
 function timelift_evolve(E, (i,x)::Pair{T}, j::T) where {T}
     @assert j ≥ i
     for k in 1:j-i
-        x = evolve(E, x)
-        x === nothing && return nothing
+        x = @returnnothing evolve(E, x)
     end
     j => x
 end
