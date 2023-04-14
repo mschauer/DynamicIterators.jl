@@ -29,7 +29,7 @@ rand(rng::AbstractRNG, D::Randn{Array{T}}) where {T} = randn(rng, T, size(D.x))
 struct WhiteNoise <: Evolution
 end
 evolve(::WhiteNoise, (t,x)::Pair{Int}) = (t+1) => Randn(x)
-evolve(::WhiteNoise, x::Union{Randn, AbstractArray, Number}) where {T} = Randn(x)
+evolve(::WhiteNoise, x::Union{Randn, AbstractArray, Number}) = Randn(x)
 
 
 #evolve(E::Evolution, (x,rng)::Sample{<:Start}) = evolve(E, Sample(x.value, rng))
